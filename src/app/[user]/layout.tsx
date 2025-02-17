@@ -2,8 +2,8 @@
 
 import { AppShell } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import Header from "./components/Header/Header";
-import NavBar from "./components/NavBar/NavBar";
+import Header from "@/components/Header/Header";
+import NavBar from "@/components/NavBar/NavBar";
 
 const HomeLayout = ({
   children,
@@ -14,13 +14,12 @@ const HomeLayout = ({
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
   return (
     <AppShell
-      header={{ height: 60 }}
+      header={{ height: 70 }}
       navbar={{
         width: 300,
         breakpoint: "sm",
         collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
       }}
-      padding="md"
     >
       <AppShell.Header>
         <Header
