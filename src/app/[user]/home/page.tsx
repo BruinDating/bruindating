@@ -29,19 +29,19 @@ const Home = () => {
             color="yellow"
             variant="transparent"
           >
-            <IconRotateClockwise size="xl" />
+            <IconRotateClockwise size={48} />
           </ActionIcon>
           <ActionIcon size="xl" color="red" variant="transparent">
-            <IconX size="xl" />
+            <IconX size={48} />
           </ActionIcon>
           <ActionIcon size="xl" variant="transparent">
-            <IconStar size="xl" />
+            <IconStar size={48} />
           </ActionIcon>
           <ActionIcon size="xl" color="teal" variant="transparent">
-            <IconHeart size="xl" />
+            <IconHeart size={48} />
           </ActionIcon>
           <ActionIcon size="xl" color="violet" variant="transparent">
-            <IconBolt size="xl" />
+            <IconBolt size={48} />
           </ActionIcon>
         </Flex>
       </Card>
