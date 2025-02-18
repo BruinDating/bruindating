@@ -1,20 +1,33 @@
+"use client";
+
 import "@mantine/carousel/styles.css";
-import Image from "next/image";
-import { Carousel, CarouselSlide } from "@mantine/carousel";
-import placeholder1 from "@/media/placeholders/placeholder1.webp";
-import placeholder2 from "@/media/placeholders/placeholder2.webp";
+import Image, { StaticImageData } from "next/image";
+import {
+  Carousel,
+  CarouselSlide,
+  Embla,
+  useAnimationOffsetEffect,
+} from "@mantine/carousel";
+import { useState } from "react";
 
-const images = [placeholder1, placeholder2];
-
-const SwipingCarousel = () => {
+const SwipingCarousel = ({ images }: { images: StaticImageData[] }) => {
   const slides = images.map((img, i) => (
     <CarouselSlide key={i}>
       <Image src={img} fill alt="profile photo" />
     </CarouselSlide>
   ));
+  const [embla, setEmbla] = useState<Embla | null>(null);
+
+  useAnimationOffsetEffect(embla, 400);
 
   return (
-    <Carousel slideSize="100%" height={800} withIndicators>
+    <Carousel
+      getEmblaApi={setEmbla}
+      key={JSON.stringify(images)}
+      height={800}
+      withIndicators
+      loop
+    >
       {slides}
     </Carousel>
   );
