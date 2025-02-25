@@ -10,8 +10,10 @@ import {
   IconSwitchHorizontal,
 } from '@tabler/icons-react';
 import { Group, TextInput, Switch, MantineProvider} from '@mantine/core';
-import classes from './NavbarSimpleColored.module.css';
 import { ButtonCopy } from './ButtonSave'
+import '@mantine/core/styles/global.css';
+import '@mantine/core/styles.css';
+import classes from './NavbarSimpleColored.module.css';
 
 
 
@@ -193,7 +195,7 @@ export function NavbarSimpleColored() {
         <nav className={classes.navbar}>
           <div className={classes.navbarMain}>
             <Group className={classes.header} justify="space-between">
-              <h1 className={classes.textWhite}>Settings</h1>
+              <h1 className={classes.setHedder}>Settings</h1>
             </Group>
             {links}
           </div>
@@ -210,7 +212,7 @@ export function NavbarSimpleColored() {
             </a>
           </div>
         </nav>
-        <h1>{pageCont}</h1>
+        <div>{pageCont}</div>
       </div>
     </MantineProvider>
   );

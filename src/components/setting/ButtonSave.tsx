@@ -1,6 +1,9 @@
 import { IconCheck, IconDeviceFloppy } from '@tabler/icons-react';
 import { Button, Tooltip } from '@mantine/core';
 import { useClipboard } from '@mantine/hooks';
+import '@mantine/core/styles/global.css';
+import '@mantine/core/styles.css';
+
 
 type ButtonCopyProps = {
     hand: () => void; // Function with no arguments and no return value
