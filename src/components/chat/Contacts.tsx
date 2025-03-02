@@ -7,8 +7,8 @@ export default function Contacts({ friends, onSelectUser }: { friends: Contact[]
             <h2 className="text-xl font-bold">Contacts</h2>
             <div className="mt-4 space-y-2">
                 {friends.map((friend) => (
-                    <div 
-                        key={friend.id} 
+                    <div
+                        key={friend.id}
                         className="flex items-center space-x-2 p-2 bg-white rounded-lg cursor-pointer hover:bg-gray-100"
                         onClick={() => onSelectUser(friend)} // transfer the selected user to the parent component
                     >

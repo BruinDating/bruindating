@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Profile from "@/components/chat/Profile";
 import ChatWindow from "@/components/chat/ChatWindow";
 import Contacts from "@/components/chat/Contacts";
+import PhotoStorage from "@/components/home/PhotoStorage"; // ✅ 导入头像存储
 
 // User & friend info structure
 export interface User {
@@ -45,13 +46,20 @@ const defaultFriends: Contact[] = [
 ];
 
 export default function ChatPage() {
-    // store user and friend info
     const [user, setUser] = useState<User>(defaultUser);
     const [friends, setFriends] = useState<Contact[]>(defaultFriends);
-
-    // current selected friend(default is the first one)
     const [selectedUser, setSelectedUser] = useState<Contact>(friends[0]);
 
+    // ✅ 确保 `localStorage` 只在客户端访问
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+            const storedImage = PhotoStorage.getAvatar();
+            if (storedUser) {
+                setUser({ ...storedUser, imageUrl: storedImage || storedUser.imageUrl });
+            }
+        }
+    }, []);
     // Dynamic API - fetch user and friend info from backend instead of using default data
     /*
     useEffect(() => {
@@ -72,7 +80,7 @@ export default function ChatPage() {
 
     return (
         <div className="flex h-screen bg-gray-100">
-            <Profile {...user} />
+            <Profile {...user} setUser={setUser} />
             <ChatWindow user={selectedUser} />
             <Contacts friends={friends} onSelectUser={setSelectedUser} />
         </div>

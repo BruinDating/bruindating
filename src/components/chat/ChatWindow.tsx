@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import type { Contact } from "@/app/chat/page";
+import { useRouter } from "next/navigation"; // import the router
 
 interface Message {
     id: number;
@@ -12,21 +13,23 @@ export default function ChatWindow({ user }: { user: Contact }) {
     // store messages history
     const [messages, setMessages] = useState<{ [key: number]: Message[] }>({
         1: [{ id: 1, text: "Hey! How are you?", sender: "other" }],
-        2: [{ id: 1, text: "It's been a while!", sender: "other" }],
-        3: [{ id: 1, text: "Let's catch up soon.", sender: "other" }],
-        4: [{ id: 1, text: "Hope you're doing well!", sender: "other" }],
-        5: [{ id: 1, text: "Did you see the latest news?", sender: "other" }]
+        2: [{ id: 2, text: "It's been a while!", sender: "other" }],
+        3: [{ id: 3, text: "Let's catch up soon.", sender: "other" }],
+        4: [{ id: 4, text: "Hope you're doing well!", sender: "other" }],
+        5: [{ id: 5, text: "Did you see the latest news?", sender: "other" }]
     });
 
-    const [inputText, setInputText] = useState(""); 
+    const router = useRouter(); // get the router
+    const [inputText, setInputText] = useState("");
     const [showMenu, setShowMenu] = useState(false);
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false); 
-    const [zoomedImage, setZoomedImage] = useState<string | null>(null); 
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
     const menuRef = useRef<HTMLDivElement | null>(null);
     const emojiRef = useRef<HTMLDivElement | null>(null);
-    const messagesContainerRef = useRef<HTMLDivElement | null>(null); // ✅ 聊天窗口
-    const messagesEndRef = useRef<HTMLDivElement | null>(null); // ✅ 聊天结尾
+    const messagesContainerRef = useRef<HTMLDivElement | null>(null); // chat window
+    const messagesEndRef = useRef<HTMLDivElement | null>(null); // chat bottom
+
 
     // close menu and emoji picker when click outside
     useEffect(() => {
@@ -42,42 +45,42 @@ export default function ChatWindow({ user }: { user: Contact }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-        //jump to the bottom of the chat window when the user changes
-        useEffect(() => {
-            if (messagesContainerRef.current) {
-                messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-            }
-        }, [user]);
-    
+    //jump to the bottom of the chat window when the user changes
+    useEffect(() => {
+        if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+    }, [user]);
 
-        // roll to the bottom of the chat window when the message changes
-        useEffect(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, [messages]);
 
-        // fetch messages history from backend
-        useEffect(() => {
-            /*
-            fetch(`/api/messages?userId=${user.id}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setMessages((prevMessages) => ({
-                        ...prevMessages,
-                        [user.id]: data.messages // ✅ 更新当前 `user.id` 的聊天记录
-                    }));
-                })
-                .catch((error) => console.error("Error fetching messages:", error));
-            */
-        }, [user.id]); // reask chat history when the user changes
-    
+    // roll to the bottom of the chat window when the message changes
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
+
+    // fetch messages history from backend
+    useEffect(() => {
+        /*
+        fetch(`/api/messages?userId=${user.id}`)
+            .then((res) => res.json())
+            .then((data) => {
+                setMessages((prevMessages) => ({
+                    ...prevMessages,
+                    [user.id]: data.messages // ✅ 更新当前 `user.id` 的聊天记录
+                }));
+            })
+            .catch((error) => console.error("Error fetching messages:", error));
+        */
+    }, [user.id]); // reask chat history when the user changes
+
     // send message
     const sendMessage = () => {
         if (inputText.trim() !== "") {
             setMessages((prevMessages) => ({
                 ...prevMessages,
                 [user.id]: [
-                    ...(prevMessages[user.id] || []), // 取当前用户的聊天记录
-                    { id: Date.now(), text: inputText, sender: "me" } // 新增消息
+                    ...(prevMessages[user.id] || []), // load the previous messages
+                    { id: Date.now(), text: inputText, sender: "me" } // new message
                 ]
             }));
 
@@ -112,8 +115,8 @@ export default function ChatWindow({ user }: { user: Contact }) {
                     className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
                     onClick={() => setZoomedImage(null)}
                 >
-                    <img 
-                        src={zoomedImage} 
+                    <img
+                        src={zoomedImage}
                         alt="Zoomed User"
                         className="rounded-full w-[500px] h-[500px] border-4 border-white shadow-lg transition-all duration-300 transform -translate-y-10"
                     />
@@ -133,7 +136,12 @@ export default function ChatWindow({ user }: { user: Contact }) {
                     {showMenu && (
                         <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
                             <ul className="py-2 text-gray-700">
-                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                    onClick={() => {
+                                        setShowMenu(false); // close the menu
+                                        router.push(`/profile/${user.id}`); // jump to the user profile
+                                    }}
+                                >
                                     View Profile
                                 </li>
                                 <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
@@ -185,8 +193,8 @@ export default function ChatWindow({ user }: { user: Contact }) {
                     {showEmojiPicker && (
                         <div ref={emojiRef} className="absolute bottom-12 left-0 w-56 bg-white border rounded-lg shadow-lg p-2 grid grid-cols-6 gap-2">
                             {["😀", "😂", "😍", "😎", "😜", "🤔", "😢", "😭", "😡", "👍", "👏", "🙌"].map((emoji) => (
-                                <button 
-                                    key={emoji} 
+                                <button
+                                    key={emoji}
                                     className="text-3xl hover:bg-gray-100 rounded-lg p-1"
                                     onClick={() => addEmoji(emoji)}
                                 >
@@ -205,8 +213,8 @@ export default function ChatWindow({ user }: { user: Contact }) {
                     onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                     className="flex-1 px-3 py-2 bg-gray-100 rounded-lg outline-none text-gray-900 placeholder-gray-700 whitespace-pre-wrap"
                 />
-                <button 
-                    onClick={sendMessage} 
+                <button
+                    onClick={sendMessage}
                     className="ml-2 bg-blue-300 text-white px-4 py-2 rounded-lg 
                             transition-transform duration-150 active:scale-95 hover:bg-blue-400"
                 >
