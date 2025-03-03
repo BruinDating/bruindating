@@ -19,14 +19,15 @@ import { UserInfoAction } from './UserInfoAction'
 
 
 
-
-
-
 export function NavbarSimpleColored() {
+  
   const [active, setActive] = useState('Billing');
   const [pageCont, setPageCont] = useState(<Profile />);
 
+
+  //==============================================//
   //== Default user settings: get from database ==//
+  //==============================================//
   //= Profile =//
   const butSize = "lg"
   const [name, setName] = useState('Current name');
@@ -44,9 +45,6 @@ export function NavbarSimpleColored() {
   //= Notification =//
   const [emailNot, setEmailNot] = useState(false);  // default state 
   const [phoneNot, setPhoneNot] = useState(false);  //default state 
-
-  //= router =//
-  const router = useRouter()
   
   //== save into database ==//
   function saveData(){
@@ -56,22 +54,30 @@ export function NavbarSimpleColored() {
     return true;
   }
 
+
+  //=========================//
+  //== navigation function ==//
+  //=========================//
+  //= router =//
+  const router = useRouter()
+
   //== logout and return to login page ==//
   function logout(){
     // function to logout and return to login page 
-    router.push('/');
-    return true;
+    router.push('/');     // go to the login screen 
   }
 
   //== return to home page ==//
   function homePg(){
     // function to return to home page 
-    router.push('/chat');
-    return true;
+    router.push('/chat');     // go to home screen which is currently set to the chat page 
   }
   
 
+  //==============================================================================================//
   //== functions that create the right half of the setting page when proper section is selected ==//
+  //==============================================================================================//
+  //== Profile settings ==//
   function Profile() {
     return(
       <div>
@@ -97,6 +103,7 @@ export function NavbarSimpleColored() {
     );
   }
 
+  //== contact settings ==//
   function Contact() {
     return(
       <div>
@@ -115,6 +122,7 @@ export function NavbarSimpleColored() {
     );
   }
 
+  //== notification settings ==//
   function Notification() {
     return(
       <div>
@@ -136,6 +144,7 @@ export function NavbarSimpleColored() {
     );
   }
 
+  //== authentication settings ==//
   function Authentication() {
     // prob don't need 
     return(
@@ -155,6 +164,7 @@ export function NavbarSimpleColored() {
     );
   }
 
+  //== other settings ==//
   function Other() {
     return(
       <div>
@@ -173,6 +183,10 @@ export function NavbarSimpleColored() {
     );
   }
 
+  
+  //=====================================//
+  //== configuring the different pages ==//
+  //=====================================//
   const data = [
     { link: <Profile />, label: 'Profile', icon: IconUser },
     { link: <Contact />, label: 'Contact Information', icon: IconSend},
@@ -198,6 +212,10 @@ export function NavbarSimpleColored() {
     </a>
   ));
 
+
+  //======================//
+  //== Return statement ==//
+  //======================//
   return (
     <MantineProvider>
       <div className={classes.mainHolder}>

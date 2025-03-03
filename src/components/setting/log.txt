@@ -7,4 +7,8 @@ NavBarSimpleColored.tsx
 - add implementation for logout(), make sure that it logouts the user, instead of just returning to the main screen 
 
 ButtonSave.tsx
-- currently using very similar version that was improted from mantine, but issue is is that it relies on the clipboard function, would want to eventually remove this, but when removed the pop up doesn't get triggered. 
+- currently using very similar version that was imported from mantine, but issue is is that it relies on the clipboard function, would want to eventually remove this, but when removed the pop up doesn't get triggered. 
+
+UserInfoAction.tsx
+- set it up so that it recieves the current profiel picture from the database and then displays that instead of the default
+- Add to handleFileChange function a line that sends the new profile picture to the database
