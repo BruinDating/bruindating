@@ -4,8 +4,7 @@ NavBarSimpleColored.tsx
 - add implementation to allow saveData function to send all updated data to database 
 - issues which switch rendering for notifications, react does not reload the updated switch settings until rerendered 
 - other settings, authentication, and notification are currently not useful 
-- add implementation to allow loggout to return to login screen and have user sign out of their current account 
-- add implementation to go back to home page
+- add implementation for logout(), make sure that it logouts the user, instead of just returning to the main screen 
 
 ButtonSave.tsx
 - currently using very similar version that was improted from mantine, but issue is is that it relies on the clipboard function, would want to eventually remove this, but when removed the pop up doesn't get triggered. 

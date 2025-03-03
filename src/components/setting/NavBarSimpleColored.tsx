@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRouter } from "next/navigation";
 
 import {
   Icon2fa,
@@ -14,6 +15,8 @@ import { ButtonCopy } from './ButtonSave'
 import '@mantine/core/styles/global.css';
 import '@mantine/core/styles.css';
 import classes from './NavbarSimpleColored.module.css';
+import { UserInfoAction } from './UserInfoAction'
+
 
 
 
@@ -41,10 +44,14 @@ export function NavbarSimpleColored() {
   //= Notification =//
   const [emailNot, setEmailNot] = useState(false);  // default state 
   const [phoneNot, setPhoneNot] = useState(false);  //default state 
+
+  //= router =//
+  const router = useRouter()
   
   //== save into database ==//
   function saveData(){
     // some statement to save all const variables into database 
+
 
     return true;
   }
@@ -52,13 +59,14 @@ export function NavbarSimpleColored() {
   //== logout and return to login page ==//
   function logout(){
     // function to logout and return to login page 
-
+    router.push('/');
     return true;
   }
 
   //== return to home page ==//
   function homePg(){
     // function to return to home page 
+    router.push('/chat');
     return true;
   }
   
@@ -69,12 +77,13 @@ export function NavbarSimpleColored() {
       <div>
         <div className={classes.column2}>
           <div>
+            <UserInfoAction />
             <TextInput size={butSize} label="Name" placeholder={name} onChange={(event) => setName(event.currentTarget.value)} className={classes.textInput}/>
-            <TextInput size={butSize} label="Country" placeholder={country} onChange={(event) => setCountry(event.currentTarget.value)} className={classes.textInput}/>
             <TextInput size={butSize} label="Age" placeholder={age} onChange={(event) => setAge(event.currentTarget.value)} className={classes.textInput}/>
             
           </div>
           <div>
+            <TextInput size={butSize} label="Country" placeholder={country} onChange={(event) => setCountry(event.currentTarget.value)} className={classes.textInput}/>
             <TextInput size={butSize} label="Height" placeholder={height} onChange={(event) => setHeight(event.currentTarget.value)} className={classes.textInput}/>
             <TextInput size={butSize} label="Religion" placeholder={religion} onChange={(event) => setReligion(event.currentTarget.value)} className={classes.textInput}/>
             <TextInput size={butSize} label="Status" placeholder={status} onChange={(event) => setStatus(event.currentTarget.value)} className={classes.textInput}/>
