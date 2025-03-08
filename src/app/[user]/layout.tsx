@@ -2,8 +2,8 @@
 
 import { AppShell } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import Header from "@/components/Header/Header";
-import NavBar from "@/components/NavBar/NavBar";
+import Header from "@/components/Layout/Header/Header";
+import NavBar from "@/components/Layout/NavBar/NavBar";
 
 const HomeLayout = ({
   children,

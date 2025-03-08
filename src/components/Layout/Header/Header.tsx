@@ -1,5 +1,5 @@
 import { Burger, Flex, Group } from "@mantine/core";
-import ThemeSwitch from "@/components/ThemeSwitch/ThemeSwitch";
+import ThemeSwitch from "@/components/Layout/ThemeSwitch/ThemeSwitch";
 
 interface HeaderProps {
   mobileOpened: boolean;

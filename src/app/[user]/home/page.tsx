@@ -17,7 +17,7 @@ import {
   IconBolt,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
-import SwipingCarousel from "@/components/SwipingCarousel/SwipingCarousel";
+import SwipingCarousel from "@/components/Home/SwipingCarousel/SwipingCarousel";
 import { useState } from "react";
 
 import placeholder1 from "@/media/placeholders/placeholder1.webp";
@@ -119,9 +119,6 @@ const Home = () => {
                   }}
                 >
                   <IconHeart size={48} />
-                </ActionIcon>
-                <ActionIcon size="xl" color="violet" variant="transparent">
-                  <IconBolt size={48} />
                 </ActionIcon>
               </Flex>
             </Card>

@@ -13,7 +13,8 @@ export const theme = createTheme({
     x4l: "3rem",
     x5l: "4rem",
   },
-  // spacing: {
-  //   //
-  // },
+  spacing: {
+    x2l: "3rem",
+    x3l: "4rem",
+  },
 });
