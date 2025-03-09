@@ -18,9 +18,9 @@ export const currentUser: UserData = {
 };
 
 export const mockUsers = {
-  "user-1": { name: "Luke", avatar: null },
-  "user-2": { name: "Charles", avatar: null },
-  "user-3": { name: "Jason", avatar: null },
+  "user-1": { name: "Luke", avatar: "https://i.pravatar.cc/50?img=1" },
+  "user-2": { name: "Charles", avatar: "https://i.pravatar.cc/50?img=2" },
+  "user-3": { name: "Jason", avatar: "https://i.pravatar.cc/50?img=3" },
 };
 
 export const mockMessages: Record<string, Message[]> = {
