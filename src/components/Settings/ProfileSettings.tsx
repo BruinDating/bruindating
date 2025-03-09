@@ -38,23 +38,178 @@ const ProfileSettings = ({
     },
   });
 
-  const [pfp, setPfp] = useState("https://placehold.co/400");
+//=====================//
+//== profile picture ==//
+//=====================//
+  function ProfilePic(){
+    const [pfp, setPfp] = useState("https://placehold.co/400");
 
-  //== get user input for profile picture ==//
-  const fileInputRef = useRef<HTMLInputElement>(null);
+    //== get user input for profile picture ==//
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]; // Get the selected file
-    if (file) {
-        const imageUrl = URL.createObjectURL(file); // Convert file to a temporary URL
-        setPfp(imageUrl); // Update the profile picture
-        //!! == send to database == !!//
+    function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+      const file = event.target.files?.[0]; // Get the selected file
+      if (file) {
+          const imageUrl = URL.createObjectURL(file); // Convert file to a temporary URL
+          setPfp(imageUrl); // Update the profile picture
+          //!! == send to database == !!//
+      }
+    }   
+
+    function buttonHandle(){
+      // command to get user input for a profile picture, and then send it to the database 
+      fileInputRef.current?.click();
     }
-  }   
 
-  function buttonHandle(){
-    // command to get user input for a profile picture, and then send it to the database 
-    fileInputRef.current?.click();
+    return(
+      <Box>
+        <Avatar size={100} radius="md" src={pfp} />
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          accept="image/*" // Restrict to image files
+          onChange={handleFileChange} // Handle file selection
+        />
+        <Button
+          variant="light"
+          size="xs"
+          mt="xs"
+          leftSection={<IconUpload size={14} />}
+          onClick={buttonHandle}
+        >
+          Change
+        </Button>
+      </Box>
+    );
+  }
+
+
+//==========//
+//== name ==//
+//==========//
+function Name(){
+  return(
+    <TextInput
+      label="Full Name"
+      placeholder="Your name"
+      {...profileForm.getInputProps("name")}
+    />
+  );
+}
+
+
+//==============//
+//== username ==//
+//==============//
+function Username(){
+  return(
+    <TextInput
+      label="Username"
+      placeholder="Your username"
+      {...profileForm.getInputProps("username")}
+    />
+  );
+}
+
+
+//===========//
+//== email ==//
+//===========//
+function Email(){
+  return(
+    <TextInput
+      label="Email"
+      placeholder="Your email"
+      mb="md"
+      {...profileForm.getInputProps("email")}
+    />
+  );
+}
+
+
+//=========//
+//== Bio ==//
+//=========//
+function Bio(){
+  return(
+    <Textarea
+        label="Bio"
+        placeholder="Tell us about yourself"
+        minRows={3}
+        mb="md"
+        {...profileForm.getInputProps("bio")}
+      />
+  );
+}
+
+
+//===========//
+//== major ==//
+//===========//
+function Major(){
+  return(
+    <Select
+      label="Major"
+      placeholder="Select your major"
+      data={majorOptions}
+      {...profileForm.getInputProps("major")}
+    />
+  );
+}
+
+//==========//
+//== Year ==//
+//==========//
+function Year(){
+  return(
+    <Select
+      label="Year"
+      placeholder="Select your year"
+      data={yearOptions}
+      {...profileForm.getInputProps("year")}
+    />
+  );
+}
+
+
+//=========//
+//== age ==//
+//=========//
+function Age(){
+  return(
+    <NumberInput
+      label="Age"
+      placeholder="Your age"
+      min={18}
+      max={100}
+      {...profileForm.getInputProps("age")}
+    />
+  );
+}
+
+//============//
+//== submit ==//
+//============//
+function Submit(){
+  return(
+    <Button type="submit">Save Changes</Button>
+  );
+}
+
+//===============//
+//== interests ==//
+//====-----======//
+function Interests(){
+  return(
+    <MultiSelect
+      label="Interests"
+      placeholder="Select your interests"
+      data={interestOptions}
+      mt="md"
+      {...profileForm.getInputProps("interests")}
+    />
+  );
 }
 
   return (
@@ -66,88 +221,27 @@ const ProfileSettings = ({
           </Title>
 
           <Group align="flex-start" mb="md">
-            <Box>
-              <Avatar size={100} radius="md" src={pfp} />
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                accept="image/*" // Restrict to image files
-                onChange={handleFileChange} // Handle file selection
-              />
-              <Button
-                variant="light"
-                size="xs"
-                mt="xs"
-                leftSection={<IconUpload size={14} />}
-                onClick={buttonHandle}
-              >
-                Change
-              </Button>
-            </Box>
-
+            <ProfilePic />
             <Stack style={{ flex: 1 }}>
-              <TextInput
-                label="Full Name"
-                placeholder="Your name"
-                {...profileForm.getInputProps("name")}
-              />
-              <TextInput
-                label="Username"
-                placeholder="Your username"
-                {...profileForm.getInputProps("username")}
-              />
+              <Name />
+              <Username />
             </Stack>
           </Group>
 
-          <TextInput
-            label="Email"
-            placeholder="Your email"
-            mb="md"
-            {...profileForm.getInputProps("email")}
-          />
-
-          <Textarea
-            label="Bio"
-            placeholder="Tell us about yourself"
-            minRows={3}
-            mb="md"
-            {...profileForm.getInputProps("bio")}
-          />
+          <Email />
+          <Bio />
+          
 
           <SimpleGrid cols={{ base: 1, sm: 3 }}>
-            <Select
-              label="Major"
-              placeholder="Select your major"
-              data={majorOptions}
-              {...profileForm.getInputProps("major")}
-            />
-            <Select
-              label="Year"
-              placeholder="Select your year"
-              data={yearOptions}
-              {...profileForm.getInputProps("year")}
-            />
-            <NumberInput
-              label="Age"
-              placeholder="Your age"
-              min={18}
-              max={100}
-              {...profileForm.getInputProps("age")}
-            />
+            <Major />
+            <Year />
+            <Age />
           </SimpleGrid>
 
-          <MultiSelect
-            label="Interests"
-            placeholder="Select your interests"
-            data={interestOptions}
-            mt="md"
-            {...profileForm.getInputProps("interests")}
-          />
+          <Interests />
 
           <Group justify="flex-end" mt="xl">
-            <Button variant="default">Cancel</Button>
-            <Button type="submit">Save Changes</Button>
+            <Submit />
           </Group>
         </form>
       </Paper>
