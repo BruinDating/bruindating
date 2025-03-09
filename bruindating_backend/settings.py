@@ -40,6 +40,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Third-party apps
+    "rest_framework",
+    "corsheaders",
+    # Local apps
+    "auth_app",
 ]
 
 MIDDLEWARE = [
@@ -50,7 +55,39 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+AUTH_USER_MODEL = "auth_app.UCLAUser"
+
+GOOGLE_OAUTH_CLIENT_SECRETS_FILE = os.path.join(BASE_DIR, "client_secret.json")
+
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+}
 
 ROOT_URLCONF = "bruindating_backend.urls"
 
