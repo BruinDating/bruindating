@@ -17,6 +17,11 @@ export interface UserData {
   dpShowMe : string;
   dpInterests : string[];
   dpMajors: string[];
+
+  notiNewMatches: boolean;
+  notiMessages: boolean;
+  notiAppUpdates: boolean;
+  notiEmailNotifications : boolean;
 }
 
 

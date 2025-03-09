@@ -10,14 +10,15 @@ import {
   Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { UserData } from "@/types/types";
 
-const NotificationSettings = () => {
+const NotificationSettings = ({currentUser}:{currentUser: UserData}) => {
   const notificationForm = useForm({
     initialValues: {
-      newMatches: true,
-      messages: true,
-      appUpdates: false,
-      emailNotifications: true,
+      newMatches: currentUser.notiNewMatches,
+      messages: currentUser.notiMessages,
+      appUpdates: currentUser.notiAppUpdates,
+      emailNotifications: currentUser.notiEmailNotifications,
     },
   });
   return (

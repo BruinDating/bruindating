@@ -23,6 +23,11 @@ export const currentUser: UserData = {
   dpShowMe: "everyone",
   dpInterests: [],
   dpMajors: [],
+
+  notiNewMatches: true,
+  notiMessages: true,
+  notiAppUpdates: false,
+  notiEmailNotifications : true,
 };
 
 export const mockUsers = {

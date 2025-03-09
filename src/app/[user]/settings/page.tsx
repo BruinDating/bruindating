@@ -52,7 +52,9 @@ const Settings = () => {
           yearOptions={yearOptions}
           interestOptions={interestOptions}
         />
-        <NotificationSettings />
+        <NotificationSettings 
+          currentUser={currentUser}
+        />
         <PrivacySettings />
       </Tabs>
     </Container>
