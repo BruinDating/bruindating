@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { UserData } from "@/types/types";
-import { SendData } from "./SendData";
+import { SendData } from "@/components/Settings/SendData";
 
 const PreferencesSettings = ({
   currentUser,

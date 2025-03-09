@@ -19,7 +19,7 @@ import { useForm } from "@mantine/form";
 import { IconUpload } from "@tabler/icons-react";
 import { useState, useRef } from 'react';
 import { UserData } from "@/types/types";
-import { SendData } from "./SendData";
+import { SendData } from "@/components/Settings/SendData";
 
 
 const ProfileSettings = ({
