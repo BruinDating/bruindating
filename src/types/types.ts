@@ -22,6 +22,11 @@ export interface UserData {
   notiMessages: boolean;
   notiAppUpdates: boolean;
   notiEmailNotifications : boolean;
+
+  priProfileVisibility: string;
+  priShowOnlineStatus: boolean;
+  priShowLastActive : boolean;
+  priAllowTagging : boolean;
 }
 
 

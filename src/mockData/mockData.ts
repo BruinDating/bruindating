@@ -28,6 +28,11 @@ export const currentUser: UserData = {
   notiMessages: true,
   notiAppUpdates: false,
   notiEmailNotifications : true,
+
+  priProfileVisibility: "public",
+  priShowOnlineStatus: true,
+  priShowLastActive: true,
+  priAllowTagging: true,
 };
 
 export const mockUsers = {

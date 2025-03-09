@@ -55,7 +55,9 @@ const Settings = () => {
         <NotificationSettings 
           currentUser={currentUser}
         />
-        <PrivacySettings />
+        <PrivacySettings 
+          currentUser={currentUser}
+        />
       </Tabs>
     </Container>
   );

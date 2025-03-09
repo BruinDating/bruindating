@@ -11,14 +11,15 @@ import {
   Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { UserData } from "@/types/types";
 
-const PrivacySettings = () => {
+const PrivacySettings = ({currentUser}:{currentUser: UserData}) => {
   const privacyForm = useForm({
     initialValues: {
-      profileVisibility: "public",
-      showOnlineStatus: true,
-      showLastActive: true,
-      allowTagging: true,
+      profileVisibility: currentUser.priProfileVisibility,
+      showOnlineStatus: currentUser.priShowOnlineStatus,
+      showLastActive: currentUser.priShowLastActive,
+      allowTagging: currentUser.priAllowTagging,
     },
   });
 
