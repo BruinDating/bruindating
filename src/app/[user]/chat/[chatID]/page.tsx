@@ -12,18 +12,21 @@ const ChatPage = () => {
   const params = useParams();
   const chatID = params.chatID as string;
 
-  console.log("Current chatID:", chatID); // for debugging
+  console.log("Current chatID:", chatID); // Debugging output chatID
 
   const [messages, setMessages] = useState(
     mockMessages[chatID as keyof typeof mockMessages] || []
   );
   const [newMessage, setNewMessage] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const socketRef = useRef<WebSocket | null>(null); // WebSocket connection
+
   const user = mockUsers[chatID as keyof typeof mockUsers] || {
     name: "User",
     avatar: null,
   };
 
+  // **Auto-scroll to the latest message**
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTo({
@@ -33,11 +36,32 @@ const ChatPage = () => {
     }
   }, [messages]);
 
-  const handleSendMessage = () => {
+  // **🔗 WebSocket listener for new messages (currently commented)**
+  /*
+  useEffect(() => {
+    const socket = new WebSocket(`wss://your-backend.com/ws/chat/${chatID}`);
+    socketRef.current = socket;
+
+    socket.onmessage = (event) => {
+      const newMessage = JSON.parse(event.data);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    };
+
+    socket.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [chatID]);
+  */
+
+  // **Send message**
+  const handleSendMessage = async () => {
     if (newMessage.trim() === "") return;
 
     const newMsg = {
-      id: messages.length + 1,
       text: newMessage,
       sender: "me",
       timestamp: new Date().toLocaleTimeString([], {
@@ -46,8 +70,39 @@ const ChatPage = () => {
       }),
     };
 
-    setMessages([...messages, newMsg]);
-    setNewMessage("");
+    try {
+      // **🔗 Future API integration**
+      /*
+      const res = await fetch("https://your-backend.com/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newMsg),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to send message");
+      }
+
+      const savedMessage = await res.json();
+      */
+
+      // **🔗 Future WebSocket message sending**
+      /*
+      if (socketRef.current) {
+        socketRef.current.send(JSON.stringify(newMsg));
+      }
+      */
+
+      // **Use mock data for now**
+      const savedMessage = { id: messages.length + 1, ...newMsg };
+
+      // **Update frontend UI**
+      setMessages([...messages, savedMessage]);
+      setNewMessage("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      alert("Message failed to send. Please check your network connection.");
+    }
   };
 
   return (
