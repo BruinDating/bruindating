@@ -85,132 +85,18 @@ const ProfileSettings = ({
   }
 
 
-//==========//
-//== name ==//
-//==========//
-function Name(){
-  return(
-    <TextInput
-      label="Full Name"
-      placeholder="Your name"
-      {...profileForm.getInputProps("name")}
-    />
-  );
-}
+  //============//
+  //== submit ==//
+  //============//
+  function Submit(){
+    function buttonHandle(){
+      // profileForm.setValues(profileForm.values);
+    }
+    return(
+      <Button type="submit">Save Changes</Button>
+    );
+  }
 
-
-//==============//
-//== username ==//
-//==============//
-function Username(){
-  return(
-    <TextInput
-      label="Username"
-      placeholder="Your username"
-      {...profileForm.getInputProps("username")}
-    />
-  );
-}
-
-
-//===========//
-//== email ==//
-//===========//
-function Email(){
-  return(
-    <TextInput
-      label="Email"
-      placeholder="Your email"
-      mb="md"
-      {...profileForm.getInputProps("email")}
-    />
-  );
-}
-
-
-//=========//
-//== Bio ==//
-//=========//
-function Bio(){
-  return(
-    <Textarea
-        label="Bio"
-        placeholder="Tell us about yourself"
-        minRows={3}
-        mb="md"
-        {...profileForm.getInputProps("bio")}
-      />
-  );
-}
-
-
-//===========//
-//== major ==//
-//===========//
-function Major(){
-  return(
-    <Select
-      label="Major"
-      placeholder="Select your major"
-      data={majorOptions}
-      {...profileForm.getInputProps("major")}
-    />
-  );
-}
-
-//==========//
-//== Year ==//
-//==========//
-function Year(){
-  return(
-    <Select
-      label="Year"
-      placeholder="Select your year"
-      data={yearOptions}
-      {...profileForm.getInputProps("year")}
-    />
-  );
-}
-
-
-//=========//
-//== age ==//
-//=========//
-function Age(){
-  return(
-    <NumberInput
-      label="Age"
-      placeholder="Your age"
-      min={18}
-      max={100}
-      {...profileForm.getInputProps("age")}
-    />
-  );
-}
-
-//============//
-//== submit ==//
-//============//
-function Submit(){
-  return(
-    <Button type="submit">Save Changes</Button>
-  );
-}
-
-//===============//
-//== interests ==//
-//====-----======//
-function Interests(){
-  return(
-    <MultiSelect
-      label="Interests"
-      placeholder="Select your interests"
-      data={interestOptions}
-      mt="md"
-      {...profileForm.getInputProps("interests")}
-    />
-  );
-}
 
   return (
     <Tabs.Panel value="profile">
@@ -223,22 +109,22 @@ function Interests(){
           <Group align="flex-start" mb="md">
             <ProfilePic />
             <Stack style={{ flex: 1 }}>
-              <Name />
-              <Username />
+              <TextInput label="Full Name" placeholder="Your name" {...profileForm.getInputProps("name")} />
+              <TextInput label="Username" placeholder="Your username" {...profileForm.getInputProps("username")} />
             </Stack>
           </Group>
 
-          <Email />
-          <Bio />
+          <TextInput label="Email" placeholder="Your email" mb="md" {...profileForm.getInputProps("email")} />
+          <Textarea label="Bio" placeholder="Tell us about yourself" minRows={3} mb="md" {...profileForm.getInputProps("bio")} />
           
 
           <SimpleGrid cols={{ base: 1, sm: 3 }}>
-            <Major />
-            <Year />
-            <Age />
+            <Select label="Major" placeholder="Select your major" data={majorOptions} {...profileForm.getInputProps("major")} />
+            <Select label="Year" placeholder="Select your year" data={yearOptions} {...profileForm.getInputProps("year")} />
+            <NumberInput label="Age" placeholder="Your age" min={18} max={100} {...profileForm.getInputProps("age")} />
           </SimpleGrid>
 
-          <Interests />
+          <MultiSelect label="Interests" placeholder="Select your interests" data={interestOptions} mt="md" {...profileForm.getInputProps("interests")} />
 
           <Group justify="flex-end" mt="xl">
             <Submit />
