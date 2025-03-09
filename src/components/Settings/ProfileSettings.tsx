@@ -17,6 +17,8 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconUpload } from "@tabler/icons-react";
+import { useState, useRef } from 'react';
+
 
 const ProfileSettings = ({
   majorOptions,
@@ -36,6 +38,25 @@ const ProfileSettings = ({
     },
   });
 
+  const [pfp, setPfp] = useState("https://placehold.co/400");
+
+  //== get user input for profile picture ==//
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]; // Get the selected file
+    if (file) {
+        const imageUrl = URL.createObjectURL(file); // Convert file to a temporary URL
+        setPfp(imageUrl); // Update the profile picture
+        //!! == send to database == !!//
+    }
+  }   
+
+  function buttonHandle(){
+    // command to get user input for a profile picture, and then send it to the database 
+    fileInputRef.current?.click();
+}
+
   return (
     <Tabs.Panel value="profile">
       <Paper shadow="xs" p="md" radius="md" withBorder>
@@ -46,12 +67,20 @@ const ProfileSettings = ({
 
           <Group align="flex-start" mb="md">
             <Box>
-              <Avatar size={100} radius="md" src="https://placehold.co/400" />
+              <Avatar size={100} radius="md" src={pfp} />
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                accept="image/*" // Restrict to image files
+                onChange={handleFileChange} // Handle file selection
+              />
               <Button
                 variant="light"
                 size="xs"
                 mt="xs"
                 leftSection={<IconUpload size={14} />}
+                onClick={buttonHandle}
               >
                 Change
               </Button>
