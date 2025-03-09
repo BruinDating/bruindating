@@ -1,4 +1,4 @@
-import { settingsProps } from "@/types/types";
+import { SettingsProps } from "@/types/types";
 import {
   Tabs,
   Paper,
@@ -22,7 +22,7 @@ const ProfileSettings = ({
   majorOptions,
   yearOptions,
   interestOptions,
-}: settingsProps) => {
+}: SettingsProps) => {
   const profileForm = useForm({
     initialValues: {
       name: "Burak Arslan",
