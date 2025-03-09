@@ -3,14 +3,16 @@
 import { useEffect, useState } from "react";
 import { Flex, Stack, Text } from "@mantine/core";
 import { IconUserCircle } from "@tabler/icons-react";
+import { Avatar } from "@mantine/core";
 import Link from "next/link";
 
 // mock data for chat list - use to test the UI
 const defaultChatList = [
-  { id: "user-1", userName: "Luke", lastText: "See you", messageSentTime: "3:55 PM" },
-  { id: "user-2", userName: "Charles", lastText: "Sup?", messageSentTime: "7:38 PM" },
-  { id: "user-3", userName: "Jason", lastText: "Gotchu", messageSentTime: "12:25 AM" },
+  { id: "user-1", userName: "Luke", lastText: "See you at the Bruin Cafe at 3?", messageSentTime: "10:38 AM", avatar: "https://i.pravatar.cc/50?img=1" },
+  { id: "user-2", userName: "Charles", lastText: "Same. This CS project is killing me.", messageSentTime: "7:50 PM", avatar: "https://i.pravatar.cc/50?img=2" },
+  { id: "user-3", userName: "Jason", lastText: "Thanks!", messageSentTime: "12:25 PM", avatar: "https://i.pravatar.cc/50?img=3" },
 ];
+
 
 const Chat = () => {
   const [chatList, setChatList] = useState(defaultChatList);
@@ -37,6 +39,7 @@ const Chat = () => {
             userName={chat.userName}
             lastText={chat.lastText}
             messageSentTime={chat.messageSentTime}
+            avatar={chat.avatar} // ✅ 传递头像数据
           />
         ))}
       </Stack>
@@ -50,11 +53,13 @@ const Chat = () => {
     userName,
     lastText,
     messageSentTime,
+    avatar,
   }: {
     id: string;
     userName: string;
     lastText: string;
     messageSentTime: string;
+    avatar: string | null;
   }) => {
     return (
       <Flex
@@ -70,13 +75,17 @@ const Chat = () => {
           color: "inherit",
         }}
       >
-        <Flex gap={10}>
-          <IconUserCircle />
-          <Text>{userName}</Text>
-          <Text>:</Text>
-          <Text c="gray">{lastText}</Text>
-        </Flex>
-        <Text>{messageSentTime}</Text>
+      <Flex gap={10} align="center">
+        {avatar ? (
+          <Avatar src={avatar} radius="xl" size="md" /> // ✅ 正确渲染头像
+        ) : (
+          <IconUserCircle size={40} />
+        )}
+        <Text>{userName}</Text>
+        <Text>:</Text>
+        <Text c="gray">{lastText}</Text>
       </Flex>
-    );
-  };
+      <Text>{messageSentTime}</Text>
+    </Flex>
+  );
+};

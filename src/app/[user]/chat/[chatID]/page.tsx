@@ -51,7 +51,7 @@ const ChatPage = () => {
   };
 
   return (
-    <Container size="md" h="100vh" p={0}>
+    <Container size="md" h="90vh" p={0}>
       <Paper shadow="xs" radius={0} h="100%">
         <Flex direction="column" h="100%">
           <ChatHeader user={user} />
