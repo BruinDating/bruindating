@@ -18,6 +18,7 @@ import {
 import { useForm } from "@mantine/form";
 import { IconUpload } from "@tabler/icons-react";
 import { useState, useRef } from 'react';
+import { UserData } from "@/types/types";
 
 
 const ProfileSettings = ({
@@ -41,12 +42,12 @@ const ProfileSettings = ({
     },
   });
 
+  const [pfp, setPfp] = useState(currentUser.avatar); // load current users's pfp
+
 //=====================//
 //== profile picture ==//
 //=====================//
   function ProfilePic(){
-    const [pfp, setPfp] = useState(currentUser.avatar); // load current users's pfp
-
     //== get user input for profile picture ==//
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -93,10 +94,42 @@ const ProfileSettings = ({
   //============//
   function Submit(){
     function buttonHandle(){
-      //send form values to database 
+      // create data set to send back
+      const updateUser: UserData = {
+        name: profileForm.values.name,
+        username: profileForm.values.username,
+        avatar: pfp,
+        email: profileForm.values.email,
+        bio: profileForm.values.bio,
+        age: profileForm.values.age,
+        major: profileForm.values.major,
+        year: profileForm.values.year,
+        interests: profileForm.values.interests,
+      
+        photos: currentUser.photos,
+      
+        dpAgeRange: currentUser.dpAgeRange,
+        dpDistance: currentUser.dpDistance,
+        dpShowMe: currentUser.dpShowMe,
+        dpInterests: currentUser.dpInterests,
+        dpMajors: currentUser.dpMajors,
+      
+        notiNewMatches: currentUser.notiNewMatches,
+        notiMessages: currentUser.notiMessages,
+        notiAppUpdates: currentUser.notiAppUpdates,
+        notiEmailNotifications : currentUser.notiEmailNotifications,
+      
+        priProfileVisibility: currentUser.priProfileVisibility,
+        priShowOnlineStatus: currentUser.priShowOnlineStatus,
+        priShowLastActive: currentUser.priShowLastActive,
+        priAllowTagging: currentUser.priAllowTagging,
+      };
+
+      //==!! send updateUse variable back to database !!==//
+      console.log("Data sent %s", (updateUser));
     }
     return(
-      <Button type="submit">Save Changes</Button>
+      <Button type="submit" onClick={buttonHandle}>Save Changes</Button>
     );
   }
 
