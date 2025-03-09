@@ -13,6 +13,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { UserData } from "@/types/types";
+import { SendData } from "./SendData";
 
 const PreferencesSettings = ({
   currentUser,
@@ -66,8 +67,8 @@ const PreferencesSettings = ({
         priAllowTagging: currentUser.priAllowTagging,
       };
 
-      //==!! send updateUse variable back to database !!==//
-      console.log("Data sent %s", (updateUser.dpAgeRange));
+      //== send updateUse variable back to database ==//
+      SendData({updateUser});
     }
     return(
       <Button type="submit" onClick={buttonHandle}>Save Changes</Button>

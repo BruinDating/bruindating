@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { UserData } from "@/types/types";
+import { SendData } from "./SendData";
 
 const NotificationSettings = ({currentUser}:{currentUser: UserData}) => {
   const notificationForm = useForm({
@@ -58,8 +59,8 @@ const NotificationSettings = ({currentUser}:{currentUser: UserData}) => {
         priAllowTagging: currentUser.priAllowTagging,
       };
 
-      //==!! send updateUse variable back to database !!==//
-      console.log("Data sent %s", (updateUser.notiNewMatches));
+      //== send updateUse variable back to database ==//
+      SendData({updateUser});
     }
     return(
       <Button type="submit" onClick={buttonHandle}>Save Changes</Button>

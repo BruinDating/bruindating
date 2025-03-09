@@ -19,6 +19,7 @@ import { useForm } from "@mantine/form";
 import { IconUpload } from "@tabler/icons-react";
 import { useState, useRef } from 'react';
 import { UserData } from "@/types/types";
+import { SendData } from "./SendData";
 
 
 const ProfileSettings = ({
@@ -56,7 +57,6 @@ const ProfileSettings = ({
       if (file) {
           const imageUrl = URL.createObjectURL(file); // Convert file to a temporary URL
           setPfp(imageUrl); // Update the profile picture
-          //!! == send to database == !!//
       }
     }   
 
@@ -125,8 +125,8 @@ const ProfileSettings = ({
         priAllowTagging: currentUser.priAllowTagging,
       };
 
-      //==!! send updateUse variable back to database !!==//
-      console.log("Data sent %s", (updateUser.name));
+      //== send updateUse variable back to database ==//
+      SendData({updateUser});
     }
     return(
       <Button type="submit" onClick={buttonHandle}>Save Changes</Button>

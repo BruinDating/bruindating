@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { UserData } from "@/types/types";
+import { SendData } from "./SendData";
 
 const PrivacySettings = ({currentUser}:{currentUser: UserData}) => {
   const privacyForm = useForm({
@@ -59,8 +60,8 @@ const PrivacySettings = ({currentUser}:{currentUser: UserData}) => {
         priAllowTagging: privacyForm.values.allowTagging,
       };
 
-      //==!! send updateUse variable back to database !!==//
-      console.log("Data sent %s", (updateUser.priAllowTagging));
+      //== send updateUse variable back to database ==//
+      SendData({updateUser});
     }
     return(
       <Button type="submit" onClick={buttonHandle}>Save Changes</Button>
