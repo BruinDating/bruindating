@@ -126,7 +126,7 @@ const ProfileSettings = ({
       };
 
       //==!! send updateUse variable back to database !!==//
-      console.log("Data sent %s", (updateUser));
+      console.log("Data sent %s", (updateUser.name));
     }
     return(
       <Button type="submit" onClick={buttonHandle}>Save Changes</Button>

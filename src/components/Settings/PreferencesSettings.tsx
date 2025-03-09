@@ -12,6 +12,7 @@ import {
   Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { UserData } from "@/types/types";
 
 const PreferencesSettings = ({
   currentUser,
@@ -28,6 +29,52 @@ const PreferencesSettings = ({
       majors: currentUser.dpMajors,
     },
   });
+
+  //============//
+  //== submit ==//
+  //============//
+  function Submit(){
+    function buttonHandle(){
+      // create data set to send back
+      const updateUser: UserData = {
+        name: currentUser.name,
+        username: currentUser.username,
+        avatar: currentUser.avatar,
+        email: currentUser.email,
+        bio: currentUser.bio,
+        age: currentUser.age,
+        major: currentUser.major,
+        year: currentUser.year,
+        interests: currentUser.interests,
+      
+        photos: currentUser.photos,
+      
+        dpAgeRange: preferencesForm.values.ageRange,
+        dpDistance: preferencesForm.values.distance,
+        dpShowMe: preferencesForm.values.showMe,
+        dpInterests: preferencesForm.values.interests,
+        dpMajors: preferencesForm.values.majors,
+      
+        notiNewMatches: currentUser.notiNewMatches,
+        notiMessages: currentUser.notiMessages,
+        notiAppUpdates: currentUser.notiAppUpdates,
+        notiEmailNotifications : currentUser.notiEmailNotifications,
+      
+        priProfileVisibility: currentUser.priProfileVisibility,
+        priShowOnlineStatus: currentUser.priShowOnlineStatus,
+        priShowLastActive: currentUser.priShowLastActive,
+        priAllowTagging: currentUser.priAllowTagging,
+      };
+
+      //==!! send updateUse variable back to database !!==//
+      console.log("Data sent %s", (updateUser.dpAgeRange));
+    }
+    return(
+      <Button type="submit" onClick={buttonHandle}>Save Changes</Button>
+    );
+  }
+
+
   return (
     <Tabs.Panel value="preferences">
       <Paper shadow="xs" p="md" radius="md" withBorder>
@@ -103,8 +150,7 @@ const PreferencesSettings = ({
           />
 
           <Group justify="flex-end" mt="xl">
-            <Button variant="default">Reset to Default</Button>
-            <Button type="submit">Save Preferences</Button>
+            <Submit />
           </Group>
         </form>
       </Paper>
