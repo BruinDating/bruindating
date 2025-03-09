@@ -1,4 +1,4 @@
-import { settingsProps } from "@/types/types";
+import { SettingsProps } from "@/types/types";
 import {
   Button,
   Group,
@@ -14,17 +14,18 @@ import {
 import { useForm } from "@mantine/form";
 
 const PreferencesSettings = ({
+  currentUser,
   majorOptions,
   yearOptions,
   interestOptions,
-}: settingsProps) => {
+}: SettingsProps) => {
   const preferencesForm = useForm({
     initialValues: {
-      ageRange: [18, 30],
-      distance: 25,
-      showMe: "everyone",
-      interests: [],
-      majors: [],
+      ageRange: currentUser.dpAgeRange,
+      distance: currentUser.dpDistance,
+      showMe: currentUser.dpShowMe,
+      interests: currentUser.dpInterests,
+      majors: currentUser.dpMajors,
     },
   });
   return (

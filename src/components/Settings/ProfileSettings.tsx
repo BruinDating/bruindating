@@ -18,7 +18,6 @@ import {
 import { useForm } from "@mantine/form";
 import { IconUpload } from "@tabler/icons-react";
 import { useState, useRef } from 'react';
-// import { currentUser } from "@/mockData/mockData";
 
 
 const ProfileSettings = ({

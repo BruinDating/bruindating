@@ -47,6 +47,7 @@ const Settings = () => {
           interestOptions={interestOptions}
         />
         <PreferencesSettings
+          currentUser={currentUser}
           majorOptions={majorOptions}
           yearOptions={yearOptions}
           interestOptions={interestOptions}

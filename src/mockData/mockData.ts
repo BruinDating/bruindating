@@ -10,12 +10,19 @@ export const currentUser: UserData = {
   major: "Computer Science",
   year: "Junior",
   interests: ["Hiking", "Coding", "Movies", "Basketball", "Photography"],
+
   photos: [
     "https://placehold.co/600x400",
     "https://placehold.co/600x400",
     "https://placehold.co/600x400",
     "https://placehold.co/600x400",
   ],
+
+  dpAgeRange: [18, 30],
+  dpDistance: 25,
+  dpShowMe: "everyone",
+  dpInterests: [],
+  dpMajors: [],
 };
 
 export const mockUsers = {

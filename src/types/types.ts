@@ -11,7 +11,14 @@ export interface UserData {
   year: string;
   interests: string[];
   photos: string[];
+
+  dpAgeRange: [number, number];
+  dpDistance: number;
+  dpShowMe : string;
+  dpInterests : string[];
+  dpMajors: string[];
 }
+
 
 export interface Message {
   id: number;
