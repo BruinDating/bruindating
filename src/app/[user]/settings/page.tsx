@@ -12,7 +12,9 @@ import ProfileSettings from "@/components/Settings/ProfileSettings";
 import PreferencesSettings from "@/components/Settings/PreferencesSettings";
 import NotificationSettings from "@/components/Settings/NotificationsSettings";
 import PrivacySettings from "@/components/Settings/PrivacySettings";
-import { settingsOptions, currentUser } from "@/mockData/mockData";
+import { settingsOptions, currentUser } from "@/mockData/mockData"; 
+
+//==!! when database is ready import currentUser from database. Also implement the SendData function to send data to the database !!==//
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState<string | null>("profile");
