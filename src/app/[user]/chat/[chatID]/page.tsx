@@ -11,6 +11,9 @@ import MessageInput from "@/components/Chat/MessageInput";
 const ChatPage = () => {
   const params = useParams();
   const chatID = params.chatID as string;
+
+  console.log("Current chatID:", chatID); // for debugging
+
   const [messages, setMessages] = useState(
     mockMessages[chatID as keyof typeof mockMessages] || []
   );
