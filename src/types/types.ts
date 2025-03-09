@@ -3,6 +3,7 @@ import { RefObject } from "react";
 export interface UserData {
   name: string;
   username: string;
+  email: string;
   avatar: string | null;
   bio: string;
   age: number;
@@ -44,6 +45,7 @@ export interface ChatBoxProps {
 }
 
 export interface SettingsProps {
+  currentUser: UserData;
   majorOptions: { value: string; label: string }[];
   yearOptions: { value: string; label: string }[];
   interestOptions: { value: string; label: string }[];

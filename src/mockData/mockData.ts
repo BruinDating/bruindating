@@ -3,7 +3,8 @@ import { UserData, Message } from "@/types/types";
 export const currentUser: UserData = {
   name: "Burak Arslan",
   username: "burak_a",
-  avatar: "https://placehold.co/400",
+  avatar: 'https://placehold.co/400',
+  email: "burak@example.com",
   bio: "Computer Science student at UCLA. Love hiking, coding, and meeting new people!",
   age: 21,
   major: "Computer Science",

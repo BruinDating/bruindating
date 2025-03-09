@@ -18,23 +18,27 @@ import {
 import { useForm } from "@mantine/form";
 import { IconUpload } from "@tabler/icons-react";
 import { useState, useRef } from 'react';
+// import { currentUser } from "@/mockData/mockData";
 
 
 const ProfileSettings = ({
+  currentUser,
   majorOptions,
   yearOptions,
   interestOptions,
 }: SettingsProps) => {
+
+
   const profileForm = useForm({
     initialValues: {
-      name: "Burak Arslan",
-      username: "burak_a",
-      email: "burak@example.com",
-      bio: "Computer Science student at UCLA. Love hiking, coding, and meeting new people!",
-      major: "Computer Science",
-      year: "Junior",
-      age: 21,
-      interests: ["Hiking", "Coding", "Movies"],
+      name: currentUser.name,
+      username: currentUser.username,
+      email: currentUser.email,
+      bio: currentUser.bio,
+      major: currentUser.major,
+      year: currentUser.year,
+      age: currentUser.age,
+      interests: currentUser.interests,
     },
   });
 
@@ -42,7 +46,7 @@ const ProfileSettings = ({
 //== profile picture ==//
 //=====================//
   function ProfilePic(){
-    const [pfp, setPfp] = useState("https://placehold.co/400");
+    const [pfp, setPfp] = useState(currentUser.avatar); // load current users's pfp
 
     //== get user input for profile picture ==//
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,7 +94,7 @@ const ProfileSettings = ({
   //============//
   function Submit(){
     function buttonHandle(){
-      // profileForm.setValues(profileForm.values);
+      //send form values to database 
     }
     return(
       <Button type="submit">Save Changes</Button>

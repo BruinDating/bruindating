@@ -12,7 +12,7 @@ import ProfileSettings from "@/components/Settings/ProfileSettings";
 import PreferencesSettings from "@/components/Settings/PreferencesSettings";
 import NotificationSettings from "@/components/Settings/NotificationsSettings";
 import PrivacySettings from "@/components/Settings/PrivacySettings";
-import { settingsOptions } from "@/mockData/mockData";
+import { settingsOptions, currentUser } from "@/mockData/mockData";
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState<string | null>("profile");
@@ -41,6 +41,7 @@ const Settings = () => {
           </Tabs.Tab>
         </Tabs.List>
         <ProfileSettings
+          currentUser={currentUser}
           majorOptions={majorOptions}
           yearOptions={yearOptions}
           interestOptions={interestOptions}
