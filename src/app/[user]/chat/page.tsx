@@ -32,7 +32,9 @@ const getChatList = async () => {
 // API connection
 /**
 const getChatList = async () => {
-  const res = await fetch("https://api.example.com/chats");
+  const res = await fetch("https://your-backend.com/api/chats", {
+    cache: "no-store", // disable cache
+  });
   return res.json();
 };
 */
