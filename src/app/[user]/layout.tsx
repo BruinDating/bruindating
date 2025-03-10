@@ -6,15 +6,23 @@ import Header from "@/components/Layout/Header/Header";
 import NavBar from "@/components/Layout/NavBar/NavBar";
 import ProtectedRoute from "@/components/Auth/ProtectedRoute";
 
-const HomeLayout = ({
-  children,
-}: Readonly<{
+interface HomeLayoutProps {
   children: React.ReactNode;
-}>) => {
+  params: {
+    user: string;
+  };
+}
+
+const HomeLayout = ({ children, params }: HomeLayoutProps) => {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      showAccessDenied={true}
+      autoRedirect={true}
+      redirectDelay={5000}
+    >
       <AppShell
         header={{ height: 70 }}
         navbar={{
