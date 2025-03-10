@@ -10,16 +10,64 @@ import {
   Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { UserData } from "@/types/types";
+import { SendData } from "@/components/Settings/SendData";
 
-const NotificationSettings = () => {
+const NotificationSettings = ({currentUser}:{currentUser: UserData}) => {
   const notificationForm = useForm({
     initialValues: {
-      newMatches: true,
-      messages: true,
-      appUpdates: false,
-      emailNotifications: true,
+      newMatches: currentUser.notiNewMatches,
+      messages: currentUser.notiMessages,
+      appUpdates: currentUser.notiAppUpdates,
+      emailNotifications: currentUser.notiEmailNotifications,
     },
   });
+
+  //============//
+  //== submit ==//
+  //============//
+  function Submit(){
+    function buttonHandle(){
+      // create data set to send back
+      const updateUser: UserData = {
+        name: currentUser.name,
+        username: currentUser.username,
+        avatar: currentUser.avatar,
+        email: currentUser.email,
+        bio: currentUser.bio,
+        age: currentUser.age,
+        major: currentUser.major,
+        year: currentUser.year,
+        interests: currentUser.interests,
+      
+        photos: currentUser.photos,
+      
+        dpAgeRange: currentUser.dpAgeRange,
+        dpDistance: currentUser.dpDistance,
+        dpShowMe: currentUser.dpShowMe,
+        dpInterests: currentUser.dpInterests,
+        dpMajors: currentUser.dpMajors,
+      
+        notiNewMatches: notificationForm.values.newMatches,
+        notiMessages: notificationForm.values.messages,
+        notiAppUpdates: notificationForm.values.appUpdates,
+        notiEmailNotifications : notificationForm.values.emailNotifications,
+      
+        priProfileVisibility: currentUser.priProfileVisibility,
+        priShowOnlineStatus: currentUser.priShowOnlineStatus,
+        priShowLastActive: currentUser.priShowLastActive,
+        priAllowTagging: currentUser.priAllowTagging,
+      };
+
+      //== send updateUse variable back to database ==//
+      SendData({updateUser});
+    }
+    return(
+      <Button type="submit" onClick={buttonHandle}>Save Changes</Button>
+    );
+  }
+
+
   return (
     <Tabs.Panel value="notifications">
       <Paper shadow="xs" p="md" radius="md" withBorder>
@@ -95,7 +143,7 @@ const NotificationSettings = () => {
           </Stack>
 
           <Group justify="flex-end" mt="xl">
-            <Button type="submit">Save Settings</Button>
+            <Submit />
           </Group>
         </form>
       </Paper>

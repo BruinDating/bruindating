@@ -3,18 +3,36 @@ import { UserData, Message } from "@/types/types";
 export const currentUser: UserData = {
   name: "Burak Arslan",
   username: "burak_a",
-  avatar: "https://placehold.co/400",
+  avatar: 'https://placehold.co/400',
+  email: "burak@example.com",
   bio: "Computer Science student at UCLA. Love hiking, coding, and meeting new people!",
   age: 21,
   major: "Computer Science",
   year: "Junior",
   interests: ["Hiking", "Coding", "Movies", "Basketball", "Photography"],
+
   photos: [
     "https://placehold.co/600x400",
     "https://placehold.co/600x400",
     "https://placehold.co/600x400",
     "https://placehold.co/600x400",
   ],
+
+  dpAgeRange: [18, 30],
+  dpDistance: 25,
+  dpShowMe: "everyone",
+  dpInterests: [],
+  dpMajors: [],
+
+  notiNewMatches: true,
+  notiMessages: true,
+  notiAppUpdates: false,
+  notiEmailNotifications : true,
+
+  priProfileVisibility: "public",
+  priShowOnlineStatus: true,
+  priShowLastActive: true,
+  priAllowTagging: true,
 };
 
 export const mockUsers = {

@@ -1,4 +1,4 @@
-import { settingsProps } from "@/types/types";
+import { SettingsProps } from "@/types/types";
 import {
   Tabs,
   Paper,
@@ -17,24 +17,122 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconUpload } from "@tabler/icons-react";
+import { useState, useRef } from 'react';
+import { UserData } from "@/types/types";
+import { SendData } from "@/components/Settings/SendData";
+
 
 const ProfileSettings = ({
+  currentUser,
   majorOptions,
   yearOptions,
   interestOptions,
-}: settingsProps) => {
+}: SettingsProps) => {
+
+
   const profileForm = useForm({
     initialValues: {
-      name: "Burak Arslan",
-      username: "burak_a",
-      email: "burak@example.com",
-      bio: "Computer Science student at UCLA. Love hiking, coding, and meeting new people!",
-      major: "Computer Science",
-      year: "Junior",
-      age: 21,
-      interests: ["Hiking", "Coding", "Movies"],
+      name: currentUser.name,
+      username: currentUser.username,
+      email: currentUser.email,
+      bio: currentUser.bio,
+      major: currentUser.major,
+      year: currentUser.year,
+      age: currentUser.age,
+      interests: currentUser.interests,
     },
   });
+
+  const [pfp, setPfp] = useState(currentUser.avatar); // load current users's pfp
+
+//=====================//
+//== profile picture ==//
+//=====================//
+  function ProfilePic(){
+    //== get user input for profile picture ==//
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+      const file = event.target.files?.[0]; // Get the selected file
+      if (file) {
+          const imageUrl = URL.createObjectURL(file); // Convert file to a temporary URL
+          setPfp(imageUrl); // Update the profile picture
+      }
+    }   
+
+    function buttonHandle(){
+      // command to get user input for a profile picture, and then send it to the database 
+      fileInputRef.current?.click();
+    }
+
+    return(
+      <Box>
+        <Avatar size={100} radius="md" src={pfp} />
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          accept="image/*" // Restrict to image files
+          onChange={handleFileChange} // Handle file selection
+        />
+        <Button
+          variant="light"
+          size="xs"
+          mt="xs"
+          leftSection={<IconUpload size={14} />}
+          onClick={buttonHandle}
+        >
+          Change
+        </Button>
+      </Box>
+    );
+  }
+
+
+  //============//
+  //== submit ==//
+  //============//
+  function Submit(){
+    function buttonHandle(){
+      // create data set to send back
+      const updateUser: UserData = {
+        name: profileForm.values.name,
+        username: profileForm.values.username,
+        avatar: pfp,
+        email: profileForm.values.email,
+        bio: profileForm.values.bio,
+        age: profileForm.values.age,
+        major: profileForm.values.major,
+        year: profileForm.values.year,
+        interests: profileForm.values.interests,
+      
+        photos: currentUser.photos,
+      
+        dpAgeRange: currentUser.dpAgeRange,
+        dpDistance: currentUser.dpDistance,
+        dpShowMe: currentUser.dpShowMe,
+        dpInterests: currentUser.dpInterests,
+        dpMajors: currentUser.dpMajors,
+      
+        notiNewMatches: currentUser.notiNewMatches,
+        notiMessages: currentUser.notiMessages,
+        notiAppUpdates: currentUser.notiAppUpdates,
+        notiEmailNotifications : currentUser.notiEmailNotifications,
+      
+        priProfileVisibility: currentUser.priProfileVisibility,
+        priShowOnlineStatus: currentUser.priShowOnlineStatus,
+        priShowLastActive: currentUser.priShowLastActive,
+        priAllowTagging: currentUser.priAllowTagging,
+      };
+
+      //== send updateUse variable back to database ==//
+      SendData({updateUser});
+    }
+    return(
+      <Button type="submit" onClick={buttonHandle}>Save Changes</Button>
+    );
+  }
+
 
   return (
     <Tabs.Panel value="profile">
@@ -45,80 +143,27 @@ const ProfileSettings = ({
           </Title>
 
           <Group align="flex-start" mb="md">
-            <Box>
-              <Avatar size={100} radius="md" src="https://placehold.co/400" />
-              <Button
-                variant="light"
-                size="xs"
-                mt="xs"
-                leftSection={<IconUpload size={14} />}
-              >
-                Change
-              </Button>
-            </Box>
-
+            <ProfilePic />
             <Stack style={{ flex: 1 }}>
-              <TextInput
-                label="Full Name"
-                placeholder="Your name"
-                {...profileForm.getInputProps("name")}
-              />
-              <TextInput
-                label="Username"
-                placeholder="Your username"
-                {...profileForm.getInputProps("username")}
-              />
+              <TextInput label="Full Name" placeholder="Your name" {...profileForm.getInputProps("name")} />
+              <TextInput label="Username" placeholder="Your username" {...profileForm.getInputProps("username")} />
             </Stack>
           </Group>
 
-          <TextInput
-            label="Email"
-            placeholder="Your email"
-            mb="md"
-            {...profileForm.getInputProps("email")}
-          />
-
-          <Textarea
-            label="Bio"
-            placeholder="Tell us about yourself"
-            minRows={3}
-            mb="md"
-            {...profileForm.getInputProps("bio")}
-          />
+          <TextInput label="Email" placeholder="Your email" mb="md" {...profileForm.getInputProps("email")} />
+          <Textarea label="Bio" placeholder="Tell us about yourself" minRows={3} mb="md" {...profileForm.getInputProps("bio")} />
+          
 
           <SimpleGrid cols={{ base: 1, sm: 3 }}>
-            <Select
-              label="Major"
-              placeholder="Select your major"
-              data={majorOptions}
-              {...profileForm.getInputProps("major")}
-            />
-            <Select
-              label="Year"
-              placeholder="Select your year"
-              data={yearOptions}
-              {...profileForm.getInputProps("year")}
-            />
-            <NumberInput
-              label="Age"
-              placeholder="Your age"
-              min={18}
-              max={100}
-              {...profileForm.getInputProps("age")}
-            />
+            <Select label="Major" placeholder="Select your major" data={majorOptions} {...profileForm.getInputProps("major")} />
+            <Select label="Year" placeholder="Select your year" data={yearOptions} {...profileForm.getInputProps("year")} />
+            <NumberInput label="Age" placeholder="Your age" min={18} max={100} {...profileForm.getInputProps("age")} />
           </SimpleGrid>
 
-          <MultiSelect
-            label="Interests"
-            placeholder="Select your interests"
-            data={interestOptions}
-            mt="md"
-            {...profileForm.getInputProps("interests")}
-          />
+          <MultiSelect label="Interests" placeholder="Select your interests" data={interestOptions} mt="md" {...profileForm.getInputProps("interests")} />
 
           <Group justify="flex-end" mt="xl">
-            <Button variant="default">Cancel</Button>
-            <Button type="submit">Save Changes</Button>
+            <Submit />
           </Group>
         </form>
       </Paper>
