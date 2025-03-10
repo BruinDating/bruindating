@@ -5,11 +5,16 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, logout
 import requests
 import google_auth_oauthlib.flow
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 UCLA_EMAIL_DOMAINS = ["@ucla.edu", "@g.ucla.edu"]
 
 
 @csrf_exempt
+@api_view(["POST"])
 def google_login(request):
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         settings.GOOGLE_OAUTH_CLIENT_SECRETS_FILE,
@@ -100,12 +105,43 @@ def google_callback(request):
             is_ucla_verified=True,
         )
 
+    refresh = RefreshToken.for_user(user)
+    tokens = {
+        "refresh": str(refresh),
+        "access": str(refresh.access_token),
+    }
+
     login(request, user)
 
     frontend_url = settings.FRONTEND_URL
-    return redirect(f"{frontend_url}/{user.username}/home")
+    return redirect(f"{frontend_url}/auth/callback?access_token={tokens['access']}&refresh_token={tokens['refresh']}&username={user.username}")
 
 
+@api_view(["POST"])
 def logout_view(request):
     logout(request)
-    return JsonResponse({"success": True})
+    return Response({"success": True})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_info(request):
+    user = request.user
+    return Response(
+        {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "profile_picture": user.profile_picture,
+            "is_ucla_verified": user.is_ucla_verified,
+        }
+    )
+
+
+@api_view(["POST"])
+def token_refresh(request):
+    from rest_framework_simplejwt.views import TokenRefreshView
+
+    return TokenRefreshView.as_view()(request)
