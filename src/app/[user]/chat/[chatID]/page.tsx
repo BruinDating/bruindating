@@ -12,21 +12,20 @@ const ChatPage = () => {
   const params = useParams();
   const chatID = params.chatID as string;
 
-  console.log("Current chatID:", chatID); // Debugging output chatID
+  console.log("Current chatID:", chatID);
 
   const [messages, setMessages] = useState(
     mockMessages[chatID as keyof typeof mockMessages] || []
   );
   const [newMessage, setNewMessage] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<WebSocket | null>(null); // WebSocket connection
+  const socketRef = useRef<WebSocket | null>(null);
 
   const user = mockUsers[chatID as keyof typeof mockUsers] || {
     name: "User",
     avatar: null,
   };
 
-  // **Auto-scroll to the latest message**
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTo({

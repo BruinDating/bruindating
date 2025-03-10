@@ -3,38 +3,22 @@ import LandingBg from "@/media/LandingPage/landing-bg.webp";
 import { Button, Stack, Text } from "@mantine/core";
 import styles from "./page.module.css";
 import Image from "next/image";
-import { useState } from "react";
+import { useAuth } from "@/components/Auth/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const LandingPage = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, isLoading, isAuthenticated, user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      router.push(`/${user.username}/home`);
+    }
+  }, [isAuthenticated, user, router]);
 
   const handleSignIn = async () => {
-    try {
-      setIsLoading(true);
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login/`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.auth_url) {
-        window.location.href = data.auth_url;
-      } else {
-        console.error("Failed to get auth URL");
-        setIsLoading(false);
-      }
-    } catch (error) {
-      console.error("Error initiating login:", error);
-      setIsLoading(false);
-    }
+    await login();
   };
 
   return (

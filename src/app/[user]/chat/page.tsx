@@ -1,6 +1,5 @@
-import { Flex, Stack, Text, Avatar } from "@mantine/core";
-import { IconUserCircle } from "@tabler/icons-react";
-import Link from "next/link";
+import ChatBox from "@/components/Chat/ChatBox";
+import { Stack } from "@mantine/core";
 
 // mock data for testing
 const getChatList = async () => {
@@ -41,7 +40,6 @@ const getChatList = async () => {
 
 export default async function Chat() {
   const chatList = await getChatList();
-
   return (
     <Stack p="xl">
       {chatList.map((chat) => (
@@ -57,41 +55,3 @@ export default async function Chat() {
     </Stack>
   );
 }
-
-const ChatBox = ({
-  id,
-  userName,
-  lastText,
-  messageSentTime,
-  avatar,
-}: {
-  id: string;
-  userName: string;
-  lastText: string;
-  messageSentTime: string;
-  avatar: string | null;
-}) => {
-  return (
-    <Flex
-      justify="space-between"
-      component={Link}
-      href={`/ethan/chat/${id}`}
-      align="center"
-      p="xl"
-      style={{
-        border: "1px solid gray",
-        borderRadius: "10px",
-        textDecoration: "none",
-        color: "inherit",
-      }}
-    >
-      <Flex gap={10} align="center">
-        {avatar ? <Avatar src={avatar} radius="xl" size="md" /> : <IconUserCircle size={40} />}
-        <Text>{userName}</Text>
-        <Text>:</Text>
-        <Text c="gray">{lastText}</Text>
-      </Flex>
-      <Text>{messageSentTime}</Text>
-    </Flex>
-  );
-};
