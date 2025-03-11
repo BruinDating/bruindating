@@ -1,6 +1,7 @@
 asgiref==3.8.1
 cachetools==5.5.2
 certifi==2025.1.31
+channels==4.2.0
 charset-normalizer==3.4.1
 Django==5.1.6
 django-cors-headers==4.7.0
@@ -20,5 +21,6 @@ python-dotenv==1.0.1
 requests==2.32.3
 requests-oauthlib==2.0.0
 rsa==4.9
+six==1.17.0
 sqlparse==0.5.3
 urllib3==2.3.0

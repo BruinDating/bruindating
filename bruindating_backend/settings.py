@@ -43,8 +43,12 @@ INSTALLED_APPS = [
     # Third-party apps
     "rest_framework",
     "corsheaders",
+    "channels",
     # Local apps
     "auth_app",
+    "chat",
+    "profiles",
+    "matching",
 ]
 
 MIDDLEWARE = [
@@ -107,8 +111,10 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = "bruindating_backend.asgi.application"
 WSGI_APPLICATION = "bruindating_backend.wsgi.application"
 
+CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
