@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useContext,
@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const router = useRouter();
 
   const getUserInfo = async () => {
     try {
@@ -137,7 +138,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const data = await response.json();
 
       if (data.auth_url) {
-        window.location.href = data.auth_url;
+        router.push(data.auth_url);
       } else {
         console.error("Failed to get auth URL");
         setIsLoading(false);
@@ -152,24 +153,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true);
 
-      const accessToken = localStorage.getItem("access_token");
+      localStorage.removeItem("intentional_logout");
 
+      setUser(null);
+      setIsAuthenticated(false);
+
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+
+      const accessToken = localStorage.getItem("access_token");
       if (accessToken) {
-        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout/`, {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout/`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
+        }).catch((error) => {
+          console.error("Error during logout API call:", error);
         });
       }
 
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      setUser(null);
-      setIsAuthenticated(false);
-
-      window.location.href = "/";
+      router.replace("/");
     } catch (error) {
       console.error("Error logging out:", error);
     } finally {

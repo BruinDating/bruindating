@@ -21,8 +21,19 @@ export const useRouteProtection = (
   const [accessStatus, setAccessStatus] = useState<AccessStatus>(
     AccessStatus.CHECKING
   );
+  const [previousAuthState, setPreviousAuthState] = useState<boolean | null>(
+    null
+  );
 
   const urlUsername = params?.user as string;
+
+  useEffect(() => {
+    if (previousAuthState === true && !isAuthenticated) {
+      router.replace("/");
+    }
+
+    setPreviousAuthState(isAuthenticated);
+  }, [isAuthenticated, router]);
 
   useEffect(() => {
     const checkAccess = async () => {

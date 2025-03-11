@@ -3,6 +3,8 @@
 import { Center, Loader, Text, Stack } from "@mantine/core";
 import useRouteProtection, { AccessStatus } from "@/hooks/useRouteProtection";
 import AccessDenied from "./AccessDenied";
+import { useAuth } from "./AuthContext";
+import { useState, useEffect } from "react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -19,6 +21,25 @@ const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { accessStatus, urlUsername, authenticatedUsername } =
     useRouteProtection(autoRedirect, redirectDelay);
+  const { isAuthenticated } = useAuth();
+  const [isNavigatingAway, setIsNavigatingAway] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setIsNavigatingAway(true);
+    }
+  }, [isAuthenticated]);
+
+  if (isNavigatingAway) {
+    return (
+      <Center h="100vh">
+        <Stack align="center" gap="md">
+          <Loader size="xl" />
+          <Text size="lg">Logging out...</Text>
+        </Stack>
+      </Center>
+    );
+  }
 
   if (accessStatus === AccessStatus.CHECKING) {
     return (
