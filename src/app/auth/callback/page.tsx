@@ -16,6 +16,7 @@ const AuthCallback = () => {
         const refreshToken = searchParams.get("refresh_token");
         const username = searchParams.get("username");
         const error = searchParams.get("error");
+        const new_user = searchParams.get("new_user");
 
         if (error) {
           setError(error);
@@ -29,6 +30,12 @@ const AuthCallback = () => {
 
         localStorage.setItem("access_token", accessToken);
         localStorage.setItem("refresh_token", refreshToken);
+
+        if (new_user === "true") {
+          router.push(`/${username}/questionnaire`);
+        } else {
+          router.push(`/${username}/home`);
+        }
 
         router.push(`/${username}/home`);
       } catch (error) {
