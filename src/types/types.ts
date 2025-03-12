@@ -14,21 +14,20 @@ export interface UserData {
 
   dpAgeRange: [number, number];
   dpDistance: number;
-  dpShowMe : string;
-  dpInterests : string[];
+  dpShowMe: string;
+  dpInterests: string[];
   dpMajors: string[];
 
   notiNewMatches: boolean;
   notiMessages: boolean;
   notiAppUpdates: boolean;
-  notiEmailNotifications : boolean;
+  notiEmailNotifications: boolean;
 
   priProfileVisibility: string;
   priShowOnlineStatus: boolean;
-  priShowLastActive : boolean;
-  priAllowTagging : boolean;
+  priShowLastActive: boolean;
+  priAllowTagging: boolean;
 }
-
 
 export interface Message {
   id: number;
@@ -70,4 +69,21 @@ export interface SettingsProps {
 
 export interface HeaderProps {
   title?: string;
+}
+
+// Matches
+
+export interface MatchData extends UserData {
+  matchPercentage?: number;
+  lastActive?: string;
+}
+
+export interface MatchCardProps {
+  match: MatchData;
+  isPotential?: boolean;
+}
+
+export interface SortOption {
+  value: string;
+  label: string;
 }

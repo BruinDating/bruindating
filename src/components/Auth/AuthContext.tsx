@@ -74,10 +74,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         const refreshed = await refreshToken();
         if (!refreshed) {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          setUser(null);
-          setIsAuthenticated(false);
+          const isIntentionalLogout =
+            localStorage.getItem("intentional_logout") === "true";
+          if (isIntentionalLogout) {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            setUser(null);
+            setIsAuthenticated(false);
+          }
         }
       }
     } catch (error) {
@@ -153,13 +157,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true);
 
-      localStorage.removeItem("intentional_logout");
+      localStorage.setItem("intentional_logout", "true");
 
       setUser(null);
       setIsAuthenticated(false);
-
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
 
       const accessToken = localStorage.getItem("access_token");
       if (accessToken) {
@@ -174,6 +175,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
       }
 
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+
       router.replace("/");
     } catch (error) {
       console.error("Error logging out:", error);
@@ -184,6 +188,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     const checkAuth = async () => {
+      if (localStorage.getItem("intentional_logout") === "true") {
+        localStorage.removeItem("intentional_logout");
+      }
       await getUserInfo();
     };
 

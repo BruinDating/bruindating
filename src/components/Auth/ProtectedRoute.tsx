@@ -21,14 +21,18 @@ const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { accessStatus, urlUsername, authenticatedUsername } =
     useRouteProtection(autoRedirect, redirectDelay);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (
+      !isLoading &&
+      !isAuthenticated &&
+      localStorage.getItem("intentional_logout") === "true"
+    ) {
       setIsNavigatingAway(true);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isLoading]);
 
   if (isNavigatingAway) {
     return (

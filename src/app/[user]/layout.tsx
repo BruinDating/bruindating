@@ -30,6 +30,7 @@ const HomeLayout = ({ children, params }: HomeLayoutProps) => {
           breakpoint: "sm",
           collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
         }}
+        padding="xl"
       >
         <AppShell.Header>
           <Header

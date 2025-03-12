@@ -28,7 +28,11 @@ export const useRouteProtection = (
   const urlUsername = params?.user as string;
 
   useEffect(() => {
-    if (previousAuthState === true && !isAuthenticated) {
+    if (
+      previousAuthState === true &&
+      !isAuthenticated &&
+      localStorage.getItem("intentional_logout") === "true"
+    ) {
       router.replace("/");
     }
 
@@ -38,6 +42,14 @@ export const useRouteProtection = (
   useEffect(() => {
     const checkAccess = async () => {
       if (isLoading) {
+        setAccessStatus(AccessStatus.CHECKING);
+        return;
+      }
+
+      const hasTokens =
+        localStorage.getItem("access_token") &&
+        localStorage.getItem("refresh_token");
+      if (!isAuthenticated && hasTokens) {
         setAccessStatus(AccessStatus.CHECKING);
         return;
       }

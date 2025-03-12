@@ -6,6 +6,7 @@ import {
   IconSettings,
   IconUserCircle,
   IconArrowRight,
+  IconHeart,
 } from "@tabler/icons-react";
 import { Divider } from "@mantine/core";
 import Link from "next/link";
@@ -30,14 +31,14 @@ const NavBar = () => {
         </Button>
         <Button
           justify="left"
-          color="violet"
-          leftSection={<IconSearch />}
+          color="grape"
+          leftSection={<IconHeart />}
           variant="transparent"
           size="xl"
           component={Link}
-          href={`/${user}/search`}
+          href={`/${user}/matches`}
         >
-          Search
+          Matches
         </Button>
         <Button
           justify="left"
