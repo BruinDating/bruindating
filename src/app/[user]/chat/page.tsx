@@ -1,61 +1,57 @@
-import { Flex, Stack, Text } from "@mantine/core";
-import { IconUserCircle } from "@tabler/icons-react";
-import Link from "next/link";
+import ChatBox from "@/components/Chat/ChatBox";
+import { Stack } from "@mantine/core";
 
-const Chat = () => {
+// mock data for testing
+const getChatList = async () => {
+  return [
+    {
+      id: "user-1",
+      userName: "Luke",
+      lastText: "See you at the Bruin Cafe at 3?",
+      messageSentTime: "10:38 AM",
+      avatar: "https://i.pravatar.cc/50?img=1",
+    },
+    {
+      id: "user-2",
+      userName: "Charles",
+      lastText: "Same. This CS project is killing me.",
+      messageSentTime: "7:50 PM",
+      avatar: "https://i.pravatar.cc/50?img=2",
+    },
+    {
+      id: "user-3",
+      userName: "Jason",
+      lastText: "Thanks!",
+      messageSentTime: "12:25 PM",
+      avatar: "https://i.pravatar.cc/50?img=3",
+    },
+  ];
+};
+
+// API connection
+/**
+const getChatList = async () => {
+  const res = await fetch("https://your-backend.com/api/chats", {
+    cache: "no-store", // disable cache
+  });
+  return res.json();
+};
+*/
+
+export default async function Chat() {
+  const chatList = await getChatList();
   return (
-    <Stack p="x3l">
-      <ChatBox
-        userName={"Luke"}
-        lastText={"See you"}
-        messageSentTime={"3:55 PM"}
-      />
-      <ChatBox
-        userName={"Charles"}
-        lastText={"Sup?"}
-        messageSentTime={"7:38 PM"}
-      />
-      <ChatBox
-        userName={"Jason"}
-        lastText={"Gotchu"}
-        messageSentTime={"12:25 AM"}
-      />
+    <Stack p="xl">
+      {chatList.map((chat) => (
+        <ChatBox
+          key={chat.id}
+          id={chat.id}
+          userName={chat.userName}
+          lastText={chat.lastText}
+          messageSentTime={chat.messageSentTime}
+          avatar={chat.avatar}
+        />
+      ))}
     </Stack>
   );
-};
-
-export default Chat;
-
-const ChatBox = ({
-  userName,
-  lastText,
-  messageSentTime,
-}: {
-  userName: string;
-  lastText: string;
-  messageSentTime: string;
-}) => {
-  return (
-    <Flex
-      justify="space-between"
-      component={Link}
-      href="chat/chatID"
-      align="center"
-      p="xl"
-      style={{
-        border: "1px solid gray",
-        borderRadius: "10px",
-        textDecoration: "none",
-        color: "inherit",
-      }}
-    >
-      <Flex gap={10}>
-        <IconUserCircle />
-        <Text>{userName}</Text>
-        <Text>:</Text>
-        <Text c="gray">{lastText}</Text>
-      </Flex>
-      <Text>{messageSentTime}</Text>
-    </Flex>
-  );
-};
+}
