@@ -9,6 +9,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db import transaction
+from profiles.models import Profile, Settings
 
 UCLA_EMAIL_DOMAINS = ["@ucla.edu", "@g.ucla.edu"]
 
@@ -95,15 +97,19 @@ def google_callback(request):
             username = f"{base_username}{counter}"
             counter += 1
 
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            first_name=user_data.get("given_name", ""),
-            last_name=user_data.get("family_name", ""),
-            google_id=user_data.get("sub"),
-            profile_picture=user_data.get("picture"),
-            is_ucla_verified=True,
-        )
+        with transaction.atomic():
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                first_name=user_data.get("given_name", ""),
+                last_name=user_data.get("family_name", ""),
+                google_id=user_data.get("sub"),
+                profile_picture=user_data.get("picture"),
+                is_ucla_verified=True,
+            )
+
+            # Profile.objects.create(user=user)
+            # Settings.objects.create(user=user)
 
     refresh = RefreshToken.for_user(user)
     tokens = {
