@@ -14,17 +14,25 @@ const ChatPage = () => {
 
   console.log("Current chatID:", chatID); // Debugging output chatID
 
-  const [messages, setMessages] = useState(
-    mockMessages[chatID as keyof typeof mockMessages] || []
-  );
+  const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [users, setUsers] = useState<string[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<string>("disconnected");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<WebSocket | null>(null); // WebSocket connection
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const userIdRef = useRef<string | null>(null); // Reference to keep track of userId for closures
 
   const user = mockUsers[chatID as keyof typeof mockUsers] || {
     name: "User",
     avatar: null,
   };
+
+  // Update userIdRef whenever userId changes
+  useEffect(() => {
+    userIdRef.current = userId;
+  }, [userId]);
 
   // **Auto-scroll to the latest message**
   useEffect(() => {
@@ -36,72 +44,135 @@ const ChatPage = () => {
     }
   }, [messages]);
 
-  // **🔗 WebSocket listener for new messages (currently commented)**
-  /*
+  // WebSocket connection management
   useEffect(() => {
-    const socket = new WebSocket(`wss://your-backend.com/ws/chat/${chatID}`);
-    socketRef.current = socket;
+    const connectWebSocket = () => {
+      // Make sure to use a valid room name (alphanumeric with underscores)
+      // The regex in routing.py is r"ws/chat/(?P<room_name>\w+)/$"
+      // So we need to ensure chatID only contains word characters (alphanumeric plus underscore)
+      const safeRoomId = chatID.replace(/[^\w]/g, '_');
+      
+      // Use the correct backend WebSocket URL - adjust this based on your backend setup
+      const wsUrl = `ws://localhost:8000/ws/chat/${safeRoomId}/`;
+      console.log("Connecting to WebSocket at:", wsUrl);
+      
+      try {
+        const socket = new WebSocket(wsUrl);
+        socketRef.current = socket;
 
-    socket.onmessage = (event) => {
-      const newMessage = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+        socket.onopen = () => {
+          console.log("WebSocket connected successfully!");
+          setConnectionStatus("connected");
+        };
+
+        socket.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log("WebSocket message received:", data);
+
+            // Handle different message types
+            switch (data.type) {
+              case "user_info":
+                console.log("Received user_info with ID:", data.user_id);
+                setUserId(data.user_id);
+                break;
+              case "chat_message":
+                console.log("Received chat_message:", data.message, "from user:", data.user_id);
+                // Use userIdRef.current to get the latest userId value
+                const currentUserId = userIdRef.current;
+                const newMsg = {
+                  id: `${data.user_id}-${Date.now()}`,
+                  text: data.message,
+                  sender: data.user_id === currentUserId ? "me" : data.user_id,
+                  timestamp: data.timestamp,
+                };
+                console.log("Adding message to state:", newMsg);
+                setMessages((prevMessages) => [...prevMessages, newMsg]);
+                break;
+              case "user_joined":
+                console.log(`User ${data.user_id} joined. Current users:`, data.users);
+                setUsers(data.users);
+                break;
+              case "user_left":
+                console.log(`User ${data.user_id} left. Current users:`, data.users);
+                setUsers(data.users);
+                break;
+              default:
+                console.log("Unknown message type:", data.type);
+            }
+          } catch (error) {
+            console.error("Error parsing WebSocket message:", error, event.data);
+          }
+        };
+
+        socket.onerror = (error) => {
+          console.error("WebSocket Error:", error);
+          setConnectionStatus("error");
+        };
+
+        socket.onclose = (event) => {
+          console.log("WebSocket closed with code:", event.code, "reason:", event.reason);
+          setConnectionStatus("disconnected");
+          
+          // Attempt to reconnect after 3 seconds
+          if (reconnectTimeoutRef.current) {
+            clearTimeout(reconnectTimeoutRef.current);
+          }
+          
+          reconnectTimeoutRef.current = setTimeout(() => {
+            console.log("Attempting to reconnect WebSocket...");
+            connectWebSocket();
+          }, 3000);
+        };
+      } catch (error) {
+        console.error("Error creating WebSocket connection:", error);
+        setConnectionStatus("error");
+      }
     };
 
-    socket.onerror = (error) => {
-      console.error("WebSocket Error:", error);
-    };
+    console.log("Setting up WebSocket connection...");
+    connectWebSocket();
 
+    // Cleanup on component unmount
     return () => {
-      socket.close();
+      console.log("Cleaning up WebSocket connection...");
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
     };
   }, [chatID]);
-  */
 
   // **Send message**
   const handleSendMessage = async () => {
     if (newMessage.trim() === "") return;
-
-    const newMsg = {
-      text: newMessage,
-      sender: "me",
-      timestamp: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
+    
+    console.log("Attempting to send message:", newMessage);
+    console.log("WebSocket ready state:", socketRef.current?.readyState);
+    
+    if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
+      console.error("WebSocket is not connected");
+      alert("Not connected to chat server. Please try again.");
+      return;
+    }
 
     try {
-      // **🔗 Future API integration**
-      /*
-      const res = await fetch("https://your-backend.com/api/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newMsg),
-      });
+      // Send the message through WebSocket
+      const messageData = {
+        message: newMessage,
+      };
+      console.log("Sending message data:", messageData);
+      
+      socketRef.current.send(JSON.stringify(messageData));
+      console.log("Message sent successfully");
 
-      if (!res.ok) {
-        throw new Error("Failed to send message");
-      }
-
-      const savedMessage = await res.json();
-      */
-
-      // **🔗 Future WebSocket message sending**
-      /*
-      if (socketRef.current) {
-        socketRef.current.send(JSON.stringify(newMsg));
-      }
-      */
-
-      // **Use mock data for now**
-      const savedMessage = { id: messages.length + 1, ...newMsg };
-
-      // **Update frontend UI**
-      setMessages([...messages, savedMessage]);
+      // Clear the input field
       setNewMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
-      alert("Message failed to send. Please check your network connection.");
+      alert("Message failed to send. Please check your connection.");
     }
   };
 
@@ -110,6 +181,16 @@ const ChatPage = () => {
       <Paper shadow="xs" radius={0} h="100%">
         <Flex direction="column" h="100%">
           <ChatHeader user={user} />
+          {connectionStatus !== "connected" && (
+            <div style={{ padding: '10px', backgroundColor: '#fff3cd', color: '#856404', textAlign: 'center' }}>
+              {connectionStatus === "disconnected" ? "Disconnected from chat server" : "Error connecting to chat server"}
+            </div>
+          )}
+          {userId && (
+            <div style={{ padding: '5px', backgroundColor: '#d4edda', color: '#155724', textAlign: 'center', fontSize: '0.8rem' }}>
+              Connected as user: {userId}
+            </div>
+          )}
           <MessageList messages={messages} scrollAreaRef={scrollAreaRef} />
           <MessageInput
             newMessage={newMessage}
