@@ -3,19 +3,16 @@ from django.utils import timezone  # Add this import
 from auth_app.models import UCLAUser
 
 class Profile(models.Model):
-    user = models.OneToOneField(UCLAUser, on_delete=models.CASCADE, related_name="profile")
-    name = models.CharField(default="Jason", max_length=100)  # Adding a name field for easier access
-    bio = models.TextField(blank=True)
-    major = models.CharField(max_length=100, blank=True)
-    year = models.CharField(max_length=20, blank=True)
-    interests = models.JSONField(default=list, blank=True)
-    location = models.CharField(max_length=100, blank=True)
-    gender = models.CharField(max_length=50, blank=True)
-    created_at = models.DateTimeField(default=timezone.now)  # Changed from auto_now_add
-    updated_at = models.DateTimeField(default=timezone.now)  # Changed from auto_now
-    
+    user = models.OneToOneField(UCLAUser, on_delete=models.CASCADE, related_name='profile')
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    gender = models.CharField(max_length=50)
+    major = models.CharField(max_length=100)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
+    hobbies = models.TextField()  # Store as comma-separated string
+
     def __str__(self):
-        return f"{self.user.email}'s Profile"
+        return f"{self.name}'s Profile"
 
 
 class Settings(models.Model):

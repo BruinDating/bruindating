@@ -34,29 +34,48 @@ class ProfileViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     queryset = Profile.objects.all()
 
-
     def get_queryset(self):
         return Profile.objects.all()
 
+    def create(self, request):
+        print("Received profile creation request with data:", request.data)
+        
+        # Get or create a user based on the email
+        email = request.data.get('email', 'default@ucla.edu')  # You might want to change this default
+        user, created = UCLAUser.objects.get_or_create(
+            email=email,
+            defaults={'username': email.split('@')[0]}
+        )
+        print(f"User {'created' if created else 'found'}: {user.email}")
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        # Check if profile already exists
+        existing_profile = Profile.objects.filter(user=user).first()
+        if existing_profile:
+            print(f"Updating existing profile for {user.email}")
+            serializer = self.get_serializer(existing_profile, data=request.data, partial=True)
+        else:
+            print(f"Creating new profile for {user.email}")
+            serializer = self.get_serializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+        
+        # Save the profile and associate it with the user
+        profile = serializer.save(user=user)
+        print(f"Profile saved successfully for {user.email}")
+        
+        return Response(serializer.data, status=201)
 
     def list(self, request):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    # Only allow create/update if user is authenticated
-    def create(self, request):
-        if not request.user.is_authenticated:
-            return Response({"error": "Authentication required"}, status=401)
-        return super().create(request)
-
     def update(self, request, pk=None):
-        if not request.user.is_authenticated:
-            return Response({"error": "Authentication required"}, status=401)
-        return super().update(request, pk)
+        profile = self.get_object()
+        serializer = self.get_serializer(profile, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 class SettingsViewSet(viewsets.ModelViewSet):
     serializer_class = SettingsSerializer
