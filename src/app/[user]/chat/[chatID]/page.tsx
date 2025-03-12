@@ -23,6 +23,7 @@ const ChatPage = () => {
   const socketRef = useRef<WebSocket | null>(null); // WebSocket connection
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const userIdRef = useRef<string | null>(null); // Reference to keep track of userId for closures
+  const processedMessagesRef = useRef<Set<string>>(new Set()); // Track processed message IDs
 
   const user = mockUsers[chatID as keyof typeof mockUsers] || {
     name: "User",
@@ -78,10 +79,22 @@ const ChatPage = () => {
                 break;
               case "chat_message":
                 console.log("Received chat_message:", data.message, "from user:", data.user_id);
+                // Create a unique message ID using user_id, timestamp, and message content
+                const messageId = `${data.user_id}-${data.timestamp}-${data.message.substring(0, 10)}`;
+                
+                // Check if we've already processed this message
+                if (processedMessagesRef.current.has(messageId)) {
+                  console.log("Skipping duplicate message:", messageId);
+                  return;
+                }
+                
+                // Add message ID to the set of processed messages
+                processedMessagesRef.current.add(messageId);
+                
                 // Use userIdRef.current to get the latest userId value
                 const currentUserId = userIdRef.current;
                 const newMsg = {
-                  id: `${data.user_id}-${Date.now()}`,
+                  id: messageId,
                   text: data.message,
                   sender: data.user_id === currentUserId ? "me" : data.user_id,
                   timestamp: data.timestamp,
@@ -131,6 +144,8 @@ const ChatPage = () => {
     };
 
     console.log("Setting up WebSocket connection...");
+    // Reset processed messages when connecting to a new chat
+    processedMessagesRef.current = new Set();
     connectWebSocket();
 
     // Cleanup on component unmount
@@ -203,4 +218,4 @@ const ChatPage = () => {
   );
 };
 
-export default ChatPage;
+export default ChatPage; 
