@@ -44,9 +44,9 @@ export interface ChatBoxProps {
 }
 
 export interface SettingsProps {
-  majorOptions: { value: string; label: string }[];
-  yearOptions: { value: string; label: string }[];
-  interestOptions: { value: string; label: string }[];
+  majorOptions: string[];
+  yearOptions: string[];
+  interestOptions: string[];
 }
 
 export interface HeaderProps {

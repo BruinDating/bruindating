@@ -89,8 +89,8 @@ export default function Page() {
           const data = await response.json();
           console.log('Profile created:', data); // Debug log
             
-            // If successful, route to the swipe page
-            router.push(`/dasf/swipe`);
+            // If successful, route to the home swiping page
+            router.push(`/dasf/home`);
         } catch (error) {
             console.error('Error saving profile:', error);
             alert('Failed to save profile. Please try again.');

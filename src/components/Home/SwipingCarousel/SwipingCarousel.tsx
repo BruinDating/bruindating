@@ -1,34 +1,48 @@
 "use client";
 
 import "@mantine/carousel/styles.css";
-import Image, { StaticImageData } from "next/image";
-import {
-  Carousel,
-  CarouselSlide,
-  Embla,
-  useAnimationOffsetEffect,
-} from "@mantine/carousel";
-import { useState } from "react";
+import Image from "next/image";
+import { Carousel } from "@mantine/carousel";
+import { Box } from "@mantine/core";
 
-const SwipingCarousel = ({ images }: { images: StaticImageData[] }) => {
-  const slides = images.map((img, i) => (
-    <CarouselSlide key={i}>
-      <Image src={img} fill alt="profile photo" />
-    </CarouselSlide>
-  ));
-  const [embla, setEmbla] = useState<Embla | null>(null);
+interface SwipingCarouselProps {
+  images: string[];
+}
 
-  useAnimationOffsetEffect(embla, 400);
+const SwipingCarousel = ({ images }: SwipingCarouselProps) => {
+  const getImageUrl = (image: string) => {
+    if (image.startsWith('http')) {
+      return image;
+    }
+    // if relative path starting with /media, prepend the backend URL
+    if (image.startsWith('/media')) {
+      return `http://127.0.0.1:8000${image}`;
+    }
+  
+    return image;
+  };
 
   return (
     <Carousel
-      getEmblaApi={setEmbla}
-      key={JSON.stringify(images)}
-      height={800}
       withIndicators
-      loop
+      height={400}
+      dragFree
+      slideGap="md"
+      align="start"
     >
-      {slides}
+      {images.map((image, index) => (
+        <Carousel.Slide key={index}>
+          <Box h={400} style={{ position: 'relative' }}>
+            <Image
+              src={getImageUrl(image)}
+              alt={`Profile image ${index + 1}`}
+              fill
+              style={{ objectFit: 'cover' }}
+              unoptimized={image.startsWith('http')}
+            />
+          </Box>
+        </Carousel.Slide>
+      ))}
     </Carousel>
   );
 };
