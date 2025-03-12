@@ -9,97 +9,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from django.http import JsonResponse
 
 UCLA_EMAIL_DOMAINS = ["@ucla.edu", "@g.ucla.edu"]
-
-# Mock user data for now
-MOCK_USERS = [
-    {
-        "id": 1,
-        "name": "Alice",
-        "age": 24,
-        "bio": "Lover of coffee and sunsets.",
-        "interests": ["Indie", "Rock", "Jazz"],
-        "profile_picture": "https://placehold.co/400",
-    },
-    {
-        "id": 2,
-        "name": "Bob",
-        "age": 26,
-        "bio": "Tech enthusiast & gamer.",
-        "interests": ["Hip-hop", "EDM", "Classical"],
-        "profile_picture": "https://placehold.co/400",
-    },
-    {
-        "id": 3,
-        "name": "Charlie",
-        "age": 22,
-        "bio": "Explorer, foodie, and bookworm.",
-        "interests": ["Pop", "R&B", "Reggae"],
-        "profile_picture": "https://placehold.co/400",
-    },
-]
-
-USER_LIKES = {}  # Temporary dictionary to store likes
-USER_DISLIKES = {}  # Temporary dictionary to store dislikes
-
-# --- EXISTING AUTH VIEWS (KEEP AS IS) ---
-
-@api_view(["GET"])
-#@permission_classes([IsAuthenticated])
-def get_users_to_swipe(request):
-    """Fetch mock users for swiping"""
-    return Response(MOCK_USERS)
-
-@api_view(["POST"])
-#@permission_classes([IsAuthenticated])
-def swipe_action(request):
-    """
-    Handle user swiping action.
-    Expecting {"user_id": 1, "action": "like"} in request data.
-    """
-    user = request.user
-    user_id = request.data.get("user_id")
-    action = request.data.get("action")
-
-    if not user_id or action not in ["like", "dislike"]:
-        return Response({"error": "Invalid request"}, status=400)
-
-    if action == "like":
-        if user.username not in USER_LIKES:
-            USER_LIKES[user.username] = set()
-        USER_LIKES[user.username].add(user_id)
-    else:
-        if user.username not in USER_DISLIKES:
-            USER_DISLIKES[user.username] = set()
-        USER_DISLIKES[user.username].add(user_id)
-
-    return Response({"message": f"{action.capitalize()} recorded for user {user_id}."})
-
-@api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-def get_matches(request):
-    """Return a mock list of matched users"""
-    return Response([
-        {
-            "id": 5,
-            "name": "Emily",
-            "age": 23,
-            "bio": "Nature lover and adventure seeker.",
-            "interests": ["Hiking", "Photography", "Travel"],
-            "profile_picture": "https://placehold.co/400",
-        },
-        {
-            "id": 6,
-            "name": "David",
-            "age": 25,
-            "bio": "Passionate about tech and startups.",
-            "interests": ["Tech", "Startups", "Investing"],
-            "profile_picture": "https://placehold.co/400",
-        },
-    ])
 
 
 @csrf_exempt
@@ -213,18 +124,20 @@ def logout_view(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])  # ✅ Allow access without authentication
+@permission_classes([IsAuthenticated])
 def user_info(request):
     user = request.user
-
-    # Handle AnonymousUser (when not logged in)
-    if user.is_anonymous:
-        return JsonResponse({"error": "User not authenticated"}, status=401)
-
-    return JsonResponse({
-        "email": user.email,
-        "username": user.username
-    })
+    return Response(
+        {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "profile_picture": user.profile_picture,
+            "is_ucla_verified": user.is_ucla_verified,
+        }
+    )
 
 
 @api_view(["POST"])
