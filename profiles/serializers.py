@@ -3,27 +3,21 @@ from .models import Profile, Settings
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(source="user.email", read_only=True)
-    name = serializers.CharField(source="user.name", read_only=True)
-
+    email = serializers.EmailField(source='user.email', read_only=True)
+    
     class Meta:
         model = Profile
         fields = [
-            "id",
-            "email",
-            "name",
-            "bio",
-            "major",
-            "year",
-            "interests",
-            "photos",
-            "location",
-            "gender",
-            "gender_preference",
-            "created_at",
-            "updated_at",
+            'id',
+            'email',
+            'name',
+            'age',
+            'gender',
+            'major',
+            'profile_picture',
+            'hobbies'
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ['id', 'email']
 
 
 class SettingsSerializer(serializers.ModelSerializer):
