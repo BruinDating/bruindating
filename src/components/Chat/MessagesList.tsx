@@ -1,57 +1,39 @@
-import React from 'react';
-import { ScrollArea, Text, Box, Flex, Stack } from '@mantine/core';
+import { MessageListProps } from "@/types/types";
+import { Box, Text, Paper, ScrollArea, Flex } from "@mantine/core";
 
-interface Message {
-  id: string;
-  text: string;
-  sender: string;
-  timestamp: string;
-}
-
-interface MessagesListProps {
-  messages: Message[];
-  scrollAreaRef: React.RefObject<HTMLDivElement>;
-}
-
-const MessagesList: React.FC<MessagesListProps> = ({ messages, scrollAreaRef }) => {
+const MessageList = ({ messages, scrollAreaRef }: MessageListProps) => {
   return (
-    <ScrollArea style={{ height: 'calc(90vh - 120px)' }} viewportRef={scrollAreaRef}>
-      <Stack spacing="xs" p="md">
-        {messages.map((message) => {
-          const isCurrentUser = message.sender === "me";
-          
-          return (
-            <Flex 
-              key={message.id} 
-              justify={isCurrentUser ? "flex-end" : "flex-start"}
-              w="100%"
+    <Box style={{ flex: 1, overflow: "hidden" }}>
+      <ScrollArea h="100%" viewportRef={scrollAreaRef}>
+        <Box p="md">
+          {messages.map((message) => (
+            <Flex
+              key={message.id}
+              justify={message.sender === "me" ? "flex-end" : "flex-start"}
+              mb="xs"
             >
-              <Box
+              <Paper
                 p="xs"
-                style={{
-                  maxWidth: '70%',
-                  backgroundColor: isCurrentUser ? '#e3f2fd' : '#f5f5f5',
-                  borderRadius: '8px',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                  alignSelf: isCurrentUser ? 'flex-end' : 'flex-start',
-                }}
+                radius="md"
+                bg={message.sender === "me" ? "blue.5" : "gray.2"}
+                c={message.sender === "me" ? "white" : "dark"}
+                style={{ maxWidth: "70%" }}
               >
-                {!isCurrentUser && (
-                  <Text size="xs" weight={500} color="dimmed">
-                    {message.sender}
-                  </Text>
-                )}
-                <Text>{message.text}</Text>
-                <Text size="xs" align="right" color="dimmed">
+                <Text size="sm">{message.text}</Text>
+                <Text
+                  size="xs"
+                  c={message.sender === "me" ? "gray.1" : "gray.6"}
+                  ta="right"
+                >
                   {message.timestamp}
                 </Text>
-              </Box>
+              </Paper>
             </Flex>
-          );
-        })}
-      </Stack>
-    </ScrollArea>
+          ))}
+        </Box>
+      </ScrollArea>
+    </Box>
   );
 };
 
-export default MessagesList; 
+export default MessageList;

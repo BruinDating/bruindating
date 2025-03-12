@@ -3,18 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Container, Paper, Flex } from "@mantine/core";
-import { mockUsers } from "@/mockData/mockData";
+import { mockMessages, mockUsers } from "@/mockData/mockData";
 import MessageList from "@/components/Chat/MessagesList";
 import ChatHeader from "@/components/Chat/ChatHeader";
 import MessageInput from "@/components/Chat/MessageInput";
-
-// Define message type for proper typing
-interface Message {
-  id: string;
-  text: string;
-  sender: string;
-  timestamp: string;
-}
 
 const ChatPage = () => {
   const params = useParams();
@@ -22,28 +14,17 @@ const ChatPage = () => {
 
   console.log("Current chatID:", chatID);
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState(
+    mockMessages[chatID as keyof typeof mockMessages] || []
+  );
   const [newMessage, setNewMessage] = useState("");
-  const [userId, setUserId] = useState<string | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<string>("disconnected");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<WebSocket | null>(null); // WebSocket connection
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const userIdRef = useRef<string | null>(null); // Reference to keep track of userId for closures
-  const processedMessagesRef = useRef<Set<string>>(new Set()); // Track processed message IDs
-
+  const socketRef = useRef<WebSocket | null>(null);
 
   const user = mockUsers[chatID as keyof typeof mockUsers] || {
     name: "User",
     avatar: null,
   };
-
-  // Update userIdRef whenever userId changes
-  useEffect(() => {
-    userIdRef.current = userId;
-  }, [userId]);
-
-  // **Auto-scroll to the latest message**
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -54,150 +35,72 @@ const ChatPage = () => {
     }
   }, [messages]);
 
-  // WebSocket connection management
+  // **🔗 WebSocket listener for new messages (currently commented)**
+  /*
   useEffect(() => {
-    const connectWebSocket = () => {
-      // Make sure to use a valid room name (alphanumeric with underscores)
-      // The regex in routing.py is r"ws/chat/(?P<room_name>\w+)/$"
-      // So we need to ensure chatID only contains word characters (alphanumeric plus underscore)
-      const safeRoomId = chatID.replace(/[^\w]/g, '_');
-      
-      // Use the correct backend WebSocket URL - adjust this based on your backend setup
-      const wsUrl = `ws://localhost:8000/ws/chat/${safeRoomId}/`;
-      console.log("Connecting to WebSocket at:", wsUrl);
-      
-      try {
-        const socket = new WebSocket(wsUrl);
-        socketRef.current = socket;
+    const socket = new WebSocket(`wss://your-backend.com/ws/chat/${chatID}`);
+    socketRef.current = socket;
 
-        socket.onopen = () => {
-          console.log("WebSocket connected successfully!");
-          setConnectionStatus("connected");
-        };
-
-        socket.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            console.log("WebSocket message received:", data);
-
-            // Handle different message types
-            switch (data.type) {
-              case "user_info":
-                console.log("Received user_info with ID:", data.user_id);
-                setUserId(data.user_id);
-                break;
-              case "chat_message":
-                console.log("Received chat_message:", data.message, "from user:", data.user_id);
-                // Create a unique message ID using user_id, timestamp, and message content
-                const messageId = `${data.user_id}-${data.timestamp}-${data.message.substring(0, 10)}`;
-                
-                // Check if we've already processed this message
-                if (processedMessagesRef.current.has(messageId)) {
-                  console.log("Skipping duplicate message:", messageId);
-                  return;
-                }
-                
-                // Add message ID to the set of processed messages
-                processedMessagesRef.current.add(messageId);
-                
-                // Use userIdRef.current to get the latest userId value
-                const currentUserId = userIdRef.current;
-                
-                // Determine the sender name - only show "me" for current user, empty string for everyone else
-                const senderName = data.user_id === currentUserId ? "me" : "";
-                
-                const newMsg: Message = {
-                  id: messageId,
-                  text: data.message,
-                  sender: senderName,
-                  timestamp: data.timestamp,
-                };
-                console.log("Adding message to state:", newMsg);
-                setMessages((prevMessages) => [...prevMessages, newMsg]);
-                break;
-              case "user_joined":
-                console.log(`User ${data.user_id} joined. Current users:`, data.users);
-                break;
-              case "user_left":
-                console.log(`User ${data.user_id} left. Current users:`, data.users);
-                break;
-              default:
-                console.log("Unknown message type:", data.type);
-            }
-          } catch (error) {
-            console.error("Error parsing WebSocket message:", error, event.data);
-          }
-        };
-
-        socket.onerror = (error) => {
-          console.error("WebSocket Error:", error);
-          setConnectionStatus("error");
-        };
-
-        socket.onclose = (event) => {
-          console.log("WebSocket closed with code:", event.code, "reason:", event.reason);
-          setConnectionStatus("disconnected");
-          
-          if (reconnectTimeoutRef.current) {
-            clearTimeout(reconnectTimeoutRef.current);
-          }
-          
-          reconnectTimeoutRef.current = setTimeout(() => {
-            console.log("Attempting to reconnect WebSocket...");
-            connectWebSocket();
-          }, 3000);
-        };
-      } catch (error) {
-        console.error("Error creating WebSocket connection:", error);
-        setConnectionStatus("error");
-      }
+    socket.onmessage = (event) => {
+      const newMessage = JSON.parse(event.data);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
     };
 
-    console.log("Setting up WebSocket connection...");
-    // Reset processed messages when connecting to a new chat
-    processedMessagesRef.current = new Set();
-    connectWebSocket();
+    socket.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };
 
-    // Cleanup on component unmount
     return () => {
-      console.log("Cleaning up WebSocket connection...");
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
+      socket.close();
     };
   }, [chatID]);
+  */
 
   // **Send message**
   const handleSendMessage = async () => {
     if (newMessage.trim() === "") return;
-    
-    console.log("Attempting to send message:", newMessage);
-    console.log("WebSocket ready state:", socketRef.current?.readyState);
-    
-    if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
-      console.error("WebSocket is not connected");
-      alert("Not connected to chat server. Please try again.");
-      return;
-    }
+
+    const newMsg = {
+      text: newMessage,
+      sender: "me",
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
 
     try {
-      // Send the message through WebSocket
-      const messageData = {
-        message: newMessage,
-      };
-      console.log("Sending message data:", messageData);
-      
-      socketRef.current.send(JSON.stringify(messageData));
-      console.log("Message sent successfully");
+      // **🔗 Future API integration**
+      /*
+      const res = await fetch("https://your-backend.com/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newMsg),
+      });
 
-      // Clear the input field
+      if (!res.ok) {
+        throw new Error("Failed to send message");
+      }
+
+      const savedMessage = await res.json();
+      */
+
+      // **🔗 Future WebSocket message sending**
+      /*
+      if (socketRef.current) {
+        socketRef.current.send(JSON.stringify(newMsg));
+      }
+      */
+
+      // **Use mock data for now**
+      const savedMessage = { id: messages.length + 1, ...newMsg };
+
+      // **Update frontend UI**
+      setMessages([...messages, savedMessage]);
       setNewMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
-      alert("Message failed to send. Please check your connection.");
+      alert("Message failed to send. Please check your network connection.");
     }
   };
 
@@ -206,20 +109,7 @@ const ChatPage = () => {
       <Paper shadow="xs" radius={0} h="100%">
         <Flex direction="column" h="100%">
           <ChatHeader user={user} />
-          {connectionStatus !== "connected" && (
-            <div style={{ padding: '10px', backgroundColor: '#fff3cd', color: '#856404', textAlign: 'center' }}>
-              {connectionStatus === "disconnected" ? "Disconnected from chat server" : "Error connecting to chat server"}
-            </div>
-          )}
-          {userId && (
-            <div style={{ padding: '5px', backgroundColor: '#d4edda', color: '#155724', textAlign: 'center', fontSize: '0.8rem' }}>
-              Connected 
-            </div>
-          )}
-          <MessageList 
-            messages={messages} 
-            scrollAreaRef={scrollAreaRef as React.RefObject<HTMLDivElement>} 
-          />
+          <MessageList messages={messages} scrollAreaRef={scrollAreaRef} />
           <MessageInput
             newMessage={newMessage}
             setNewMessage={setNewMessage}
@@ -231,4 +121,4 @@ const ChatPage = () => {
   );
 };
 
-export default ChatPage; 
+export default ChatPage;
