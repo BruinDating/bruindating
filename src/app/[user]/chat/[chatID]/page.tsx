@@ -3,10 +3,18 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Container, Paper, Flex } from "@mantine/core";
-import { mockMessages, mockUsers } from "@/mockData/mockData";
+import { mockUsers } from "@/mockData/mockData";
 import MessageList from "@/components/Chat/MessagesList";
 import ChatHeader from "@/components/Chat/ChatHeader";
 import MessageInput from "@/components/Chat/MessageInput";
+
+// Define message type for proper typing
+interface Message {
+  id: string;
+  text: string;
+  sender: string;
+  timestamp: string;
+}
 
 const ChatPage = () => {
   const params = useParams();
@@ -14,9 +22,8 @@ const ChatPage = () => {
 
   console.log("Current chatID:", chatID); // Debugging output chatID
 
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [users, setUsers] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<string>("disconnected");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -93,10 +100,14 @@ const ChatPage = () => {
                 
                 // Use userIdRef.current to get the latest userId value
                 const currentUserId = userIdRef.current;
-                const newMsg = {
+                
+                // Determine the sender name - only show "me" for current user, empty string for everyone else
+                const senderName = data.user_id === currentUserId ? "me" : "";
+                
+                const newMsg: Message = {
                   id: messageId,
                   text: data.message,
-                  sender: data.user_id === currentUserId ? "me" : data.user_id,
+                  sender: senderName,
                   timestamp: data.timestamp,
                 };
                 console.log("Adding message to state:", newMsg);
@@ -104,11 +115,9 @@ const ChatPage = () => {
                 break;
               case "user_joined":
                 console.log(`User ${data.user_id} joined. Current users:`, data.users);
-                setUsers(data.users);
                 break;
               case "user_left":
                 console.log(`User ${data.user_id} left. Current users:`, data.users);
-                setUsers(data.users);
                 break;
               default:
                 console.log("Unknown message type:", data.type);
@@ -127,7 +136,6 @@ const ChatPage = () => {
           console.log("WebSocket closed with code:", event.code, "reason:", event.reason);
           setConnectionStatus("disconnected");
           
-          // Attempt to reconnect after 3 seconds
           if (reconnectTimeoutRef.current) {
             clearTimeout(reconnectTimeoutRef.current);
           }
@@ -203,10 +211,13 @@ const ChatPage = () => {
           )}
           {userId && (
             <div style={{ padding: '5px', backgroundColor: '#d4edda', color: '#155724', textAlign: 'center', fontSize: '0.8rem' }}>
-              Connected as user: {userId}
+              Connected 
             </div>
           )}
-          <MessageList messages={messages} scrollAreaRef={scrollAreaRef} />
+          <MessageList 
+            messages={messages} 
+            scrollAreaRef={scrollAreaRef as React.RefObject<HTMLDivElement>} 
+          />
           <MessageInput
             newMessage={newMessage}
             setNewMessage={setNewMessage}
