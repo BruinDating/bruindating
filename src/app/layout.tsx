@@ -8,6 +8,7 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import { theme } from "@/theme/theme";
+import AuthProvider from "@/components/Auth/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +40,7 @@ const RootLayout = ({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <MantineProvider theme={theme} defaultColorScheme="auto">
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </MantineProvider>
       </body>
     </html>

@@ -3,6 +3,7 @@ import { RefObject } from "react";
 export interface UserData {
   name: string;
   username: string;
+  email: string;
   avatar: string | null;
   bio: string;
   age: number;
@@ -10,6 +11,22 @@ export interface UserData {
   year: string;
   interests: string[];
   photos: string[];
+
+  dpAgeRange: [number, number];
+  dpDistance: number;
+  dpShowMe: string;
+  dpInterests: string[];
+  dpMajors: string[];
+
+  notiNewMatches: boolean;
+  notiMessages: boolean;
+  notiAppUpdates: boolean;
+  notiEmailNotifications: boolean;
+
+  priProfileVisibility: string;
+  priShowOnlineStatus: boolean;
+  priShowLastActive: boolean;
+  priAllowTagging: boolean;
 }
 
 export interface Message {
@@ -44,6 +61,7 @@ export interface ChatBoxProps {
 }
 
 export interface SettingsProps {
+  currentUser: UserData;
   majorOptions: { value: string; label: string }[];
   yearOptions: { value: string; label: string }[];
   interestOptions: { value: string; label: string }[];
@@ -51,4 +69,21 @@ export interface SettingsProps {
 
 export interface HeaderProps {
   title?: string;
+}
+
+// Matches
+
+export interface MatchData extends UserData {
+  matchPercentage?: number;
+  lastActive?: string;
+}
+
+export interface MatchCardProps {
+  match: MatchData;
+  isPotential?: boolean;
+}
+
+export interface SortOption {
+  value: string;
+  label: string;
 }

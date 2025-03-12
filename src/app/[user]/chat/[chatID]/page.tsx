@@ -20,7 +20,7 @@ const ChatPage = () => {
   const params = useParams();
   const chatID = params.chatID as string;
 
-  console.log("Current chatID:", chatID); // Debugging output chatID
+  console.log("Current chatID:", chatID);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -31,6 +31,7 @@ const ChatPage = () => {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const userIdRef = useRef<string | null>(null); // Reference to keep track of userId for closures
   const processedMessagesRef = useRef<Set<string>>(new Set()); // Track processed message IDs
+
 
   const user = mockUsers[chatID as keyof typeof mockUsers] || {
     name: "User",
@@ -43,6 +44,7 @@ const ChatPage = () => {
   }, [userId]);
 
   // **Auto-scroll to the latest message**
+
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTo({
