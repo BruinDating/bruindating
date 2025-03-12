@@ -16,14 +16,19 @@ class ProfileSerializer(serializers.ModelSerializer):
             "major",
             "year",
             "interests",
-            "photos",
+            #"photos",
             "location",
             "gender",
-            "gender_preference",
-            "created_at",
-            "updated_at",
+            #"gender_preference",
+            #"created_at",
+            #"updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
+    def get_email(self, obj):
+        return obj.user.email if obj.user else None
+
+    def get_name(self, obj):
+        return obj.user.name if obj.user else None
 
 
 class SettingsSerializer(serializers.ModelSerializer):

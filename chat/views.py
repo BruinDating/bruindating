@@ -8,7 +8,7 @@ from django.db.models import Q
 
 class ChatRoomViewSet(viewsets.ModelViewSet):
     serializer_class = ChatRoomSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return ChatRoom.objects.filter(participants=self.request.user)
