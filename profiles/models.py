@@ -1,18 +1,22 @@
 from django.db import models
-from django.utils import timezone  # Add this import
 from auth_app.models import UCLAUser
 
+
 class Profile(models.Model):
-    user = models.OneToOneField(UCLAUser, on_delete=models.CASCADE, related_name='profile')
-    name = models.CharField(max_length=100)
-    age = models.IntegerField()
-    gender = models.CharField(max_length=50)
-    major = models.CharField(max_length=100)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
-    hobbies = models.TextField()  # Store as comma-separated string
+    user = models.OneToOneField(UCLAUser, on_delete=models.CASCADE, related_name="profile")
+    bio = models.TextField(blank=True)
+    major = models.CharField(max_length=100, blank=True)
+    year = models.CharField(max_length=20, blank=True)
+    interests = models.JSONField(default=list, blank=True)
+    photos = models.JSONField(default=list, blank=True)
+    location = models.CharField(max_length=100, blank=True)
+    gender = models.CharField(max_length=50, blank=True)
+    gender_preference = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name}'s Profile"
+        return f"{self.user.email}'s Profile"
 
 
 class Settings(models.Model):
