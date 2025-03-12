@@ -53,7 +53,7 @@ const MatchesView = ({
           w={200}
         />
       </Group>
-      <SimpleGrid cols={7} spacing="xl">
+      <SimpleGrid cols={4} spacing="xl">
         {isPotential
           ? sortedMatches.map((match) => (
               <MatchCard key={match.username} match={match} isPotential />
