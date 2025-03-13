@@ -23,7 +23,7 @@ const ChatHeader = ({ user }: ChatHeaderProps) => {
             Back
           </Button>
           <Group>
-            {user.avatar ? (
+            {user.avatar && user.avatar !== "" ? (
               <Avatar src={user.avatar} radius="xl" size="md" />
             ) : (
               <IconUserCircle size={40} />

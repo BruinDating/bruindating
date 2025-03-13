@@ -1,57 +1,101 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import ChatBox from "@/components/Chat/ChatBox";
-import { Stack } from "@mantine/core";
+import { Stack, Loader, Center, Text } from "@mantine/core";
+import { fetchChatRooms } from "@/services/api";
+import { useAuth } from "@/components/Auth/AuthContext";
 
-// mock data for testing
-const getChatList = async () => {
-  return [
-    {
-      id: "user-1",
-      userName: "Luke",
-      lastText: "See you at the Bruin Cafe at 3?",
-      messageSentTime: "10:38 AM",
-      avatar: "https://i.pravatar.cc/50?img=1",
-    },
-    {
-      id: "user-2",
-      userName: "Charles",
-      lastText: "Same. This CS project is killing me.",
-      messageSentTime: "7:50 PM",
-      avatar: "https://i.pravatar.cc/50?img=2",
-    },
-    {
-      id: "user-3",
-      userName: "Jason",
-      lastText: "Thanks!",
-      messageSentTime: "12:25 PM",
-      avatar: "https://i.pravatar.cc/50?img=3",
-    },
-  ];
-};
+interface ChatRoom {
+  id: string;
+  name: string;
+  participants: {
+    id: number;
+    username: string;
+    profile_picture: string | null;
+  }[];
+  last_message: {
+    content: string;
+    timestamp: string;
+  } | null;
+}
 
-// API connection
-/**
-const getChatList = async () => {
-  const res = await fetch("https://your-backend.com/api/chats", {
-    cache: "no-store", // disable cache
-  });
-  return res.json();
-};
-*/
+const Chat = () => {
+  const { isAuthenticated } = useAuth();
+  const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export default async function Chat() {
-  const chatList = await getChatList();
+  useEffect(() => {
+    const loadChatRooms = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const accessToken = localStorage.getItem("access_token");
+        const rooms = await fetchChatRooms(accessToken);
+        setChatRooms(rooms);
+      } catch (err) {
+        setError("Failed to load chat rooms. Please try again later.");
+        console.error("Error loading chat rooms:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadChatRooms();
+  }, [isAuthenticated]);
+
+  if (isLoading) {
+    return (
+      <Center h="50vh">
+        <Loader size="lg" />
+      </Center>
+    );
+  }
+
+  if (error) {
+    return (
+      <Center h="50vh">
+        <Text c="red">{error}</Text>
+      </Center>
+    );
+  }
+
+  if (chatRooms.length === 0) {
+    return (
+      <Center h="50vh">
+        <Text>No conversations yet. Match with someone to start chatting!</Text>
+      </Center>
+    );
+  }
+
   return (
     <Stack p="xl">
-      {chatList.map((chat) => (
-        <ChatBox
-          key={chat.id}
-          id={chat.id}
-          userName={chat.userName}
-          lastText={chat.lastText}
-          messageSentTime={chat.messageSentTime}
-          avatar={chat.avatar}
-        />
-      ))}
+      {chatRooms.map((room) => {
+        const otherParticipant = room.participants[0];
+        return (
+          <ChatBox
+            key={room.id}
+            id={room.id}
+            userName={otherParticipant.username}
+            lastText={room.last_message?.content || "Start a conversation!"}
+            messageSentTime={
+              room.last_message
+                ? new Date(room.last_message.timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : ""
+            }
+            avatar={otherParticipant.profile_picture || ""}
+          />
+        );
+      })}
     </Stack>
   );
-}
+};
+
+export default Chat;

@@ -13,7 +13,7 @@ import { useForm } from "@mantine/form";
 import { UserData } from "@/types/types";
 import { SendData } from "@/components/Settings/SendData";
 
-const NotificationSettings = ({currentUser}:{currentUser: UserData}) => {
+const NotificationSettings = ({ currentUser }: { currentUser: UserData }) => {
   const notificationForm = useForm({
     initialValues: {
       newMatches: currentUser.notiNewMatches,
@@ -26,8 +26,8 @@ const NotificationSettings = ({currentUser}:{currentUser: UserData}) => {
   //============//
   //== submit ==//
   //============//
-  function Submit(){
-    function buttonHandle(){
+  function Submit() {
+    function buttonHandle() {
       // create data set to send back
       const updateUser: UserData = {
         name: currentUser.name,
@@ -39,20 +39,20 @@ const NotificationSettings = ({currentUser}:{currentUser: UserData}) => {
         major: currentUser.major,
         year: currentUser.year,
         interests: currentUser.interests,
-      
+
         photos: currentUser.photos,
-      
+
         dpAgeRange: currentUser.dpAgeRange,
         dpDistance: currentUser.dpDistance,
         dpShowMe: currentUser.dpShowMe,
         dpInterests: currentUser.dpInterests,
         dpMajors: currentUser.dpMajors,
-      
+
         notiNewMatches: notificationForm.values.newMatches,
         notiMessages: notificationForm.values.messages,
         notiAppUpdates: notificationForm.values.appUpdates,
-        notiEmailNotifications : notificationForm.values.emailNotifications,
-      
+        notiEmailNotifications: notificationForm.values.emailNotifications,
+
         priProfileVisibility: currentUser.priProfileVisibility,
         priShowOnlineStatus: currentUser.priShowOnlineStatus,
         priShowLastActive: currentUser.priShowLastActive,
@@ -60,13 +60,14 @@ const NotificationSettings = ({currentUser}:{currentUser: UserData}) => {
       };
 
       //== send updateUse variable back to database ==//
-      SendData({updateUser});
+      SendData({ updateUser });
     }
-    return(
-      <Button type="submit" onClick={buttonHandle}>Save Changes</Button>
+    return (
+      <Button type="submit" onClick={buttonHandle}>
+        Save Changes
+      </Button>
     );
   }
-
 
   return (
     <Tabs.Panel value="notifications">

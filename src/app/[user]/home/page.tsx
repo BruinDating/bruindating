@@ -8,33 +8,135 @@ import {
   Flex,
   Transition,
   MantineTransition,
+  Text,
+  Loader,
 } from "@mantine/core";
-import {
-  IconRotateClockwise,
-  IconX,
-  IconStar,
-  IconHeart,
-  IconBolt,
-} from "@tabler/icons-react";
+import { IconX, IconHeart } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import SwipingCarousel from "@/components/Home/SwipingCarousel/SwipingCarousel";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import placeholder1 from "@/media/placeholders/placeholder1.webp";
-import placeholder2 from "@/media/placeholders/placeholder2.webp";
-import placeholder3 from "@/media/placeholders/placeholder3.webp";
-import placeholder4 from "@/media/placeholders/placeholder4.webp";
-
-const images1 = [placeholder1, placeholder2];
-const images2 = [placeholder3, placeholder4];
-const images = [images1, images2];
+import { ExtendedMatchData } from "@/types/types";
+import {
+  dislikeProfile,
+  fetchPotentialMatches,
+  likeProfile,
+} from "@/services/api";
+import { useAuth } from "@/components/Auth/AuthContext";
 
 const Home = () => {
+  const { isAuthenticated } = useAuth();
   const [opened, setOpened] = useState(true);
   const [imgIndex, setImgIndex] = useState(0);
   const [transition, setTransition] =
     useState<MantineTransition>("pop-top-right");
   const [scale, setScale] = useState(1);
+  const [potentialMatches, setPotentialMatches] = useState<ExtendedMatchData[]>(
+    []
+  );
+  const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadPotentialMatches = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const accessToken = localStorage.getItem("access_token");
+        const matches = await fetchPotentialMatches(accessToken);
+        setPotentialMatches(matches as ExtendedMatchData[]);
+      } catch (err) {
+        setError("Failed to load potential matches. Please try again later.");
+        console.error("Error loading potential matches:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadPotentialMatches();
+  }, [isAuthenticated]);
+
+  const handleLike = async () => {
+    if (
+      potentialMatches.length === 0 ||
+      currentProfileIndex >= potentialMatches.length
+    )
+      return;
+
+    try {
+      const accessToken = localStorage.getItem("access_token");
+      const userId = potentialMatches[currentProfileIndex].id.toString();
+      await likeProfile(userId, accessToken);
+
+      setTransition("slide-right");
+      setOpened(false);
+      setTimeout(() => {
+        setCurrentProfileIndex((prev) => prev + 1);
+        setTransition("pop-top-right");
+        setOpened(true);
+      }, 500);
+    } catch (err) {
+      console.error("Error liking profile:", err);
+    }
+  };
+
+  const handleDislike = async () => {
+    if (
+      potentialMatches.length === 0 ||
+      currentProfileIndex >= potentialMatches.length
+    )
+      return;
+
+    try {
+      const accessToken = localStorage.getItem("access_token");
+      const userId = potentialMatches[currentProfileIndex].id.toString();
+      await dislikeProfile(userId, accessToken);
+
+      setTransition("slide-left");
+      setOpened(false);
+      setTimeout(() => {
+        setCurrentProfileIndex((prev) => prev + 1);
+        setTransition("pop-top-right");
+        setOpened(true);
+      }, 500);
+    } catch (err) {
+      console.error("Error disliking profile:", err);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Center h="50vh">
+        <Loader size="lg" />
+      </Center>
+    );
+  }
+
+  if (error) {
+    return (
+      <Center h="50vh">
+        <Text c="red">{error}</Text>
+      </Center>
+    );
+  }
+
+  if (
+    potentialMatches.length === 0 ||
+    currentProfileIndex >= potentialMatches.length
+  ) {
+    return (
+      <Center h="50vh">
+        <Text>No more profiles to show. Check back later!</Text>
+      </Center>
+    );
+  }
+
+  const currentProfile = potentialMatches[currentProfileIndex];
+  const profileImages = currentProfile.photos || [];
 
   return (
     <motion.div animate={{ scale: scale }}>
@@ -47,76 +149,31 @@ const Home = () => {
               padding="lg"
               radius="md"
               withBorder
-              style={{ backgroundColor: "#EEEEEE" }}
+              style={{ backgroundColor: "#dbdbdb" }}
             >
               <CardSection>
-                <SwipingCarousel images={images[imgIndex]} />
+                <SwipingCarousel
+                  images={profileImages}
+                  name={currentProfile.name}
+                  age={currentProfile.age}
+                  major={currentProfile.major}
+                  bio={currentProfile.bio}
+                />
               </CardSection>
-              <Flex justify="space-between" p="xl">
-                <ActionIcon
-                  size="xl"
-                  color="yellow"
-                  variant="transparent"
-                  onClick={() => {
-                    if (imgIndex > 0) {
-                      setOpened(false);
-                      setTimeout(() => {
-                        setImgIndex(imgIndex - 1);
-                        setOpened(true);
-                      }, 500);
-                    }
-                  }}
-                >
-                  <IconRotateClockwise size={48} />
-                </ActionIcon>
+              <Flex gap={200} justify="center" p="xl">
                 <ActionIcon
                   size="xl"
                   color="red"
                   variant="transparent"
-                  onClick={() => {
-                    setTransition("rotate-left");
-                    setOpened(false);
-                    if (imgIndex < images.length - 1)
-                      setTimeout(() => {
-                        setImgIndex(imgIndex + 1);
-                        setOpened(true);
-                      }, 500);
-                  }}
+                  onClick={handleDislike}
                 >
                   <IconX size={48} />
                 </ActionIcon>
                 <ActionIcon
                   size="xl"
+                  color="green"
                   variant="transparent"
-                  onClick={() => {
-                    setScale(1.2);
-                    setTimeout(() => {
-                      setScale(1);
-                      setTransition("pop");
-                      setOpened(false);
-                    }, 1000);
-                    if (imgIndex < images.length - 1)
-                      setTimeout(() => {
-                        setImgIndex(imgIndex + 1);
-                        setOpened(true);
-                      }, 1200);
-                  }}
-                >
-                  <IconStar size={48} />
-                </ActionIcon>
-                <ActionIcon
-                  size="xl"
-                  color="teal"
-                  variant="transparent"
-                  onClick={() => {
-                    setTransition("rotate-right");
-                    setOpened(false);
-                    if (imgIndex < images.length - 1)
-                      setTimeout(() => {
-                        setImgIndex(imgIndex + 1);
-                        setOpened(true);
-                      }, 500);
-                  }}
+                  onClick={handleLike}
                 >
                   <IconHeart size={48} />
                 </ActionIcon>

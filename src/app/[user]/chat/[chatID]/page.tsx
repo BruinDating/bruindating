@@ -2,29 +2,80 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Container, Paper, Flex } from "@mantine/core";
-import { mockMessages, mockUsers } from "@/mockData/mockData";
+import { Container, Paper, Flex, Loader, Center, Text } from "@mantine/core";
 import MessageList from "@/components/Chat/MessagesList";
 import ChatHeader from "@/components/Chat/ChatHeader";
 import MessageInput from "@/components/Chat/MessageInput";
+import {
+  fetchChatMessages,
+  sendChatMessage,
+  fetchChatRooms,
+} from "@/services/api";
+import { useAuth } from "@/components/Auth/AuthContext";
+import { Message } from "@/types/types";
 
 const ChatPage = () => {
+  const { isAuthenticated } = useAuth();
   const params = useParams();
   const chatID = params.chatID as string;
 
-  console.log("Current chatID:", chatID);
-
-  const [messages, setMessages] = useState(
-    mockMessages[chatID as keyof typeof mockMessages] || []
-  );
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [chatUser, setChatUser] = useState({ name: "", avatar: null });
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
 
-  const user = mockUsers[chatID as keyof typeof mockUsers] || {
-    name: "User",
-    avatar: null,
-  };
+  useEffect(() => {
+    const loadChatData = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const accessToken = localStorage.getItem("access_token");
+
+        const rooms = await fetchChatRooms(accessToken);
+        const currentRoom = rooms.find((room) => room.id === chatID);
+
+        if (currentRoom) {
+          const otherParticipant = currentRoom.participants[0];
+          setChatUser({
+            name: otherParticipant.username,
+            avatar: otherParticipant.profile_picture,
+          });
+
+          const chatMessages = await fetchChatMessages(chatID, accessToken);
+          setMessages(chatMessages);
+        } else {
+          setError("Chat room not found");
+        }
+      } catch (err) {
+        setError("Failed to load chat. Please try again later.");
+        console.error("Error loading chat:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadChatData();
+
+    const intervalId = setInterval(async () => {
+      if (isAuthenticated) {
+        try {
+          const accessToken = localStorage.getItem("access_token");
+          const chatMessages = await fetchChatMessages(chatID, accessToken);
+          setMessages(chatMessages);
+        } catch (err) {
+          console.error("Error polling messages:", err);
+        }
+      }
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [chatID, isAuthenticated]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -35,68 +86,18 @@ const ChatPage = () => {
     }
   }, [messages]);
 
-  // **🔗 WebSocket listener for new messages (currently commented)**
-  /*
-  useEffect(() => {
-    const socket = new WebSocket(`wss://your-backend.com/ws/chat/${chatID}`);
-    socketRef.current = socket;
-
-    socket.onmessage = (event) => {
-      const newMessage = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-    };
-
-    socket.onerror = (error) => {
-      console.error("WebSocket Error:", error);
-    };
-
-    return () => {
-      socket.close();
-    };
-  }, [chatID]);
-  */
-
-  // **Send message**
   const handleSendMessage = async () => {
     if (newMessage.trim() === "") return;
 
-    const newMsg = {
-      text: newMessage,
-      sender: "me",
-      timestamp: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-
     try {
-      // **🔗 Future API integration**
-      /*
-      const res = await fetch("https://your-backend.com/api/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newMsg),
-      });
+      const accessToken = localStorage.getItem("access_token");
+      const sentMessage = await sendChatMessage(
+        chatID,
+        newMessage,
+        accessToken
+      );
 
-      if (!res.ok) {
-        throw new Error("Failed to send message");
-      }
-
-      const savedMessage = await res.json();
-      */
-
-      // **🔗 Future WebSocket message sending**
-      /*
-      if (socketRef.current) {
-        socketRef.current.send(JSON.stringify(newMsg));
-      }
-      */
-
-      // **Use mock data for now**
-      const savedMessage = { id: messages.length + 1, ...newMsg };
-
-      // **Update frontend UI**
-      setMessages([...messages, savedMessage]);
+      setMessages((prevMessages) => [...prevMessages, sentMessage]);
       setNewMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
@@ -104,11 +105,27 @@ const ChatPage = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <Center h="50vh">
+        <Loader size="lg" />
+      </Center>
+    );
+  }
+
+  if (error) {
+    return (
+      <Center h="50vh">
+        <Text c="red">{error}</Text>
+      </Center>
+    );
+  }
+
   return (
     <Container size="md" h="90vh" p={0}>
       <Paper shadow="xs" radius={0} h="100%">
         <Flex direction="column" h="100%">
-          <ChatHeader user={user} />
+          <ChatHeader user={chatUser} />
           <MessageList messages={messages} scrollAreaRef={scrollAreaRef} />
           <MessageInput
             newMessage={newMessage}

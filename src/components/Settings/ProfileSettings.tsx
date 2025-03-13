@@ -17,10 +17,9 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconUpload } from "@tabler/icons-react";
-import { useState, useRef } from 'react';
+import { useState, useRef } from "react";
 import { UserData } from "@/types/types";
 import { SendData } from "@/components/Settings/SendData";
-
 
 const ProfileSettings = ({
   currentUser,
@@ -28,8 +27,6 @@ const ProfileSettings = ({
   yearOptions,
   interestOptions,
 }: SettingsProps) => {
-
-
   const profileForm = useForm({
     initialValues: {
       name: currentUser.name,
@@ -45,29 +42,29 @@ const ProfileSettings = ({
 
   const [pfp, setPfp] = useState(currentUser.avatar); // load current users's pfp
 
-//=====================//
-//== profile picture ==//
-//=====================//
-  function ProfilePic(){
+  //=====================//
+  //== profile picture ==//
+  //=====================//
+  function ProfilePic() {
     //== get user input for profile picture ==//
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
       const file = event.target.files?.[0]; // Get the selected file
       if (file) {
-          const imageUrl = URL.createObjectURL(file); // Convert file to a temporary URL
-          setPfp(imageUrl); // Update the profile picture
+        const imageUrl = URL.createObjectURL(file); // Convert file to a temporary URL
+        setPfp(imageUrl); // Update the profile picture
       }
-    }   
+    }
 
-    function buttonHandle(){
-      // command to get user input for a profile picture, and then send it to the database 
+    function buttonHandle() {
+      // command to get user input for a profile picture, and then send it to the database
       fileInputRef.current?.click();
     }
 
-    return(
+    return (
       <Box>
-        <Avatar size={100} radius="md" src={pfp} />
+        <Avatar size={100} radius="md" src={pfp && pfp !== "" ? pfp : null} />
         <input
           type="file"
           ref={fileInputRef}
@@ -88,12 +85,11 @@ const ProfileSettings = ({
     );
   }
 
-
   //============//
   //== submit ==//
   //============//
-  function Submit(){
-    function buttonHandle(){
+  function Submit() {
+    function buttonHandle() {
       // create data set to send back
       const updateUser: UserData = {
         name: profileForm.values.name,
@@ -105,20 +101,20 @@ const ProfileSettings = ({
         major: profileForm.values.major,
         year: profileForm.values.year,
         interests: profileForm.values.interests,
-      
+
         photos: currentUser.photos,
-      
+
         dpAgeRange: currentUser.dpAgeRange,
         dpDistance: currentUser.dpDistance,
         dpShowMe: currentUser.dpShowMe,
         dpInterests: currentUser.dpInterests,
         dpMajors: currentUser.dpMajors,
-      
+
         notiNewMatches: currentUser.notiNewMatches,
         notiMessages: currentUser.notiMessages,
         notiAppUpdates: currentUser.notiAppUpdates,
-        notiEmailNotifications : currentUser.notiEmailNotifications,
-      
+        notiEmailNotifications: currentUser.notiEmailNotifications,
+
         priProfileVisibility: currentUser.priProfileVisibility,
         priShowOnlineStatus: currentUser.priShowOnlineStatus,
         priShowLastActive: currentUser.priShowLastActive,
@@ -126,13 +122,14 @@ const ProfileSettings = ({
       };
 
       //== send updateUse variable back to database ==//
-      SendData({updateUser});
+      SendData({ updateUser });
     }
-    return(
-      <Button type="submit" onClick={buttonHandle}>Save Changes</Button>
+    return (
+      <Button type="submit" onClick={buttonHandle}>
+        Save Changes
+      </Button>
     );
   }
-
 
   return (
     <Tabs.Panel value="profile">
@@ -145,22 +142,62 @@ const ProfileSettings = ({
           <Group align="flex-start" mb="md">
             <ProfilePic />
             <Stack style={{ flex: 1 }}>
-              <TextInput label="Full Name" placeholder="Your name" {...profileForm.getInputProps("name")} />
-              <TextInput label="Username" placeholder="Your username" {...profileForm.getInputProps("username")} />
+              <TextInput
+                label="Full Name"
+                placeholder="Your name"
+                {...profileForm.getInputProps("name")}
+              />
+              <TextInput
+                label="Username"
+                placeholder="Your username"
+                {...profileForm.getInputProps("username")}
+              />
             </Stack>
           </Group>
 
-          <TextInput label="Email" placeholder="Your email" mb="md" {...profileForm.getInputProps("email")} />
-          <Textarea label="Bio" placeholder="Tell us about yourself" minRows={3} mb="md" {...profileForm.getInputProps("bio")} />
-          
+          <TextInput
+            label="Email"
+            placeholder="Your email"
+            mb="md"
+            {...profileForm.getInputProps("email")}
+          />
+          <Textarea
+            label="Bio"
+            placeholder="Tell us about yourself"
+            minRows={3}
+            mb="md"
+            {...profileForm.getInputProps("bio")}
+          />
 
           <SimpleGrid cols={{ base: 1, sm: 3 }}>
-            <Select label="Major" placeholder="Select your major" data={majorOptions} {...profileForm.getInputProps("major")} />
-            <Select label="Year" placeholder="Select your year" data={yearOptions} {...profileForm.getInputProps("year")} />
-            <NumberInput label="Age" placeholder="Your age" min={18} max={100} {...profileForm.getInputProps("age")} />
+            <Select
+              label="Major"
+              placeholder="Select your major"
+              data={majorOptions}
+              {...profileForm.getInputProps("major")}
+            />
+            <Select
+              label="Year"
+              placeholder="Select your year"
+              data={yearOptions}
+              {...profileForm.getInputProps("year")}
+            />
+            <NumberInput
+              label="Age"
+              placeholder="Your age"
+              min={18}
+              max={100}
+              {...profileForm.getInputProps("age")}
+            />
           </SimpleGrid>
 
-          <MultiSelect label="Interests" placeholder="Select your interests" data={interestOptions} mt="md" {...profileForm.getInputProps("interests")} />
+          <MultiSelect
+            label="Interests"
+            placeholder="Select your interests"
+            data={interestOptions}
+            mt="md"
+            {...profileForm.getInputProps("interests")}
+          />
 
           <Group justify="flex-end" mt="xl">
             <Submit />

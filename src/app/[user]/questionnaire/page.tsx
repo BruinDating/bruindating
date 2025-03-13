@@ -1,43 +1,101 @@
 "use client";
 
-import { Text,Button, Group, TextInput} from "@mantine/core";
+import { Text, Button, Group, TextInput, Loader, Center } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { Dropzone } from "@mantine/dropzone";
 import { IconPhoto } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
-
-import { currentUser } from "@/mockData/mockData";
+import { useRouter } from "next/navigation";
+import { fetchProfileData, submitQuestionnaire } from "@/services/api";
+import { useAuth } from "@/components/Auth/AuthContext";
 
 const textInputStyles = {
-    label: {
-      color: "#000", // Black label text
-   
-    },
-    input: {
-      backgroundColor: "#f8f9fa", // Light gray background
-      color: "#333", // Dark text color inside the textbox
-      border: "1px solid #ccc", // Subtle border
-      width: "100%", // Makes inputs flexible
-      maxWidth: "400px",
-    },
-  };
-  
-export default function Page() {
-    const [image, setImage] = useState<string | null>(null);
+  label: {
+    color: "#000",
+  },
+  input: {
+    backgroundColor: "#f8f9fa",
+    color: "#333",
+    border: "1px solid #ccc",
+    width: "100%",
+    maxWidth: "400px",
+  },
+};
 
-  // Simulate fetching data from an API
+interface QuestionnaireFormValues {
+  bio: string;
+  major: string;
+  year: string;
+  age: number;
+  interests: string[];
+  gender: string;
+  genderPreference: string[];
+  location: string;
+}
+
+export default function Page() {
+  const { isAuthenticated, user } = useAuth();
+  const router = useRouter();
+  const [image, setImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const form = useForm<QuestionnaireFormValues>({
+    initialValues: {
+      bio: "",
+      major: "",
+      year: "",
+      age: 18,
+      interests: [],
+      gender: "",
+      genderPreference: [],
+      location: "",
+    },
+    validate: {
+      bio: (value) =>
+        value.length < 10 ? "Bio must be at least 10 characters" : null,
+      major: (value) => (value.length < 2 ? "Please enter your major" : null),
+      year: (value) => (value.length < 2 ? "Please enter your year" : null),
+      age: (value) => (value < 18 ? "You must be at least 18 years old" : null),
+      gender: (value) =>
+        value.length < 2 ? "Please select your gender" : null,
+    },
+  });
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      return new Promise((resolve) => {
-        setTimeout(() => resolve(currentUser), 1000); // Simulate delay
-      });
+    const loadUserData = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const accessToken = localStorage.getItem("access_token");
+        const profileData = await fetchProfileData({ accessToken });
+
+        form.setValues({
+          bio: profileData.bio || "",
+          major: profileData.major || "",
+          year: profileData.year || "",
+          age: profileData.age || 18,
+          interests: profileData.interests || [],
+          gender: profileData.gender || "",
+          genderPreference: profileData.genderPreference || [],
+          location: profileData.location || "",
+        });
+
+        setImage(profileData.avatar || null);
+      } catch (err) {
+        setError("Failed to load profile data. Please try again later.");
+        console.error("Error loading profile data:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    fetchUserData().then((data) => {
-      form.setValues(data);
-      setImage(data.profilePic || null);
-    });
-  }, []);
+    loadUserData();
+  }, [isAuthenticated]);
 
   const handleDrop = (files: File[]) => {
     const file = files[0];
@@ -46,147 +104,135 @@ export default function Page() {
     reader.readAsDataURL(file);
   };
 
-  const form = useForm({
-    initialValues: {
-      name: "",
-      hometown: "",
-      age: "",
-      height: "",
-      religion: "",
-      major: "",
-      studySpot:"",
-      dreamClass:"",
-      interests:"",
-      lateNightFood:"",
-      favoriteFood:""
-    },
-  });
+  const handleSubmit = async (values: QuestionnaireFormValues) => {
+    if (!isAuthenticated) return;
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      const accessToken = localStorage.getItem("access_token");
+      await submitQuestionnaire(values, accessToken);
+
+      router.push(`/${user?.username}/home`);
+    } catch (err) {
+      setError("Failed to submit questionnaire. Please try again later.");
+      console.error("Error submitting questionnaire:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Center h="50vh">
+        <Loader size="lg" />
+      </Center>
+    );
+  }
+
+  if (error) {
+    return (
+      <Center h="50vh">
+        <Text c="red">{error}</Text>
+      </Center>
+    );
+  }
 
   return (
-    <div
-      style={{
-        maxWidth: "400px",
-        margin: "20px auto",
-        padding: "20px",
-        background: "pink",
-        borderRadius: "8px",
-        boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-      }}
-    >
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-  <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "#000" }}>
-    Get to Know Yourself ❤️
-  </h2>
-  <Group justify="center" mt="md">
-      <Dropzone
-        onDrop={handleDrop}
-        accept={["image/png", "image/jpeg", "image/jpg"]}
-        style={{
-          width: 120,
-          height: 120,
-          borderRadius: "50%",
-          overflow: "hidden",
-          backgroundColor: "#f8f9fa",
-          border: "2px dashed #ccc",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          cursor: "pointer",
-        }}
-      >
-        {image ? (
-            <img
-  src={image}
-  alt="Profile Picture"
-  style={{
-    width: "120px",
-    height: "120px",
-    borderRadius: "50%", 
-    objectFit: "cover", 
-  }}
-/>
-        ) : (
-          <Group justify="center">
-            <IconPhoto size={40} color="#888" />
-            <Text size="xs" color="black">
-              Click to upload
-            </Text>
-          </Group>
-        )}
-      </Dropzone>
-    </Group>
-</div>
-{/* send data to backend API */}
-<form onSubmit={form.onSubmit(async (values) => {
-    console.log(values);
-    await fetch("/api/saveUserData", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-    });
-})}>
+    <div className="container mx-auto p-4">
+      <Text size="xl" fw={700} mb="lg">
+        Complete Your Profile
+      </Text>
 
-  <TextInput withAsterisk label="Name" {...form.getInputProps("name")} styles={textInputStyles} />
-  <TextInput  label="Hometown" {...form.getInputProps("hometown")} styles={textInputStyles} />
-  <TextInput  label="Age" {...form.getInputProps("age")} styles={textInputStyles} />
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        <div className="mb-6">
+          <Text size="lg" fw={500} mb="xs">
+            Profile Picture
+          </Text>
+          <Dropzone
+            onDrop={handleDrop}
+            accept={["image/png", "image/jpeg", "image/gif"]}
+            maxSize={3 * 1024 * 1024}
+            mb="md"
+          >
+            <Group
+              justify="center"
+              gap="md"
+              style={{ minHeight: 100, pointerEvents: "none" }}
+            >
+              <IconPhoto size={50} stroke={1.5} />
+              <div>
+                <Text size="md" inline>
+                  Drag images here or click to select files
+                </Text>
+                <Text size="sm" c="dimmed" inline mt={7}>
+                  Attach one file, size should not exceed 5mb
+                </Text>
+              </div>
+            </Group>
+          </Dropzone>
 
-  {/* Height Dropdown */}
-  <TextInput
-    withAsterisk
-    label="Height"
-    component="select"
-    {...form.getInputProps("height")}
-    onChange={(event) => form.setFieldValue("height", event.target.value)}
-    styles={textInputStyles}
-  >
-    <option value="">Select your height</option>
-    {Array.from({ length: 32 }, (_, i) => {
-      const feet = Math.floor((55 + i) / 12);
-      const inches = (55 + i) % 12;
-      return (
-        <option key={i} value={`${feet}'${inches}"`}>
-          {feet}'{inches}"
-        </option>
-      );
-    })}
-  </TextInput>
+          {image && image !== "" && (
+            <div className="mt-2">
+              <img
+                src={image}
+                alt="Profile preview"
+                className="w-32 h-32 object-cover rounded-full"
+              />
+            </div>
+          )}
+        </div>
 
-  <TextInput  label="Religion" {...form.getInputProps("religion")} styles={textInputStyles} />
-  <TextInput  label="Major" {...form.getInputProps("major")} styles={textInputStyles} />
-  <TextInput  label="My hobbies are..." {...form.getInputProps("interests")} styles={textInputStyles}/>
-  <TextInput  label="My favorite study spot on campus is..." {...form.getInputProps("studySpot")} styles={textInputStyles}/>
-  <TextInput  label="My favorite food is..." {...form.getInputProps("favoriteFood")} styles={textInputStyles}/>
-  <TextInput  label="My go-to late-night food spot near UCLA is..." {...form.getInputProps("lateNightFood")} styles={textInputStyles}/>
-  <TextInput  label="If I could take a class on anything at UCLA, it would be..." {...form.getInputProps("dreamClass")} styles={textInputStyles}/>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <TextInput
+            label="Bio"
+            placeholder="Tell us about yourself"
+            {...form.getInputProps("bio")}
+            styles={textInputStyles}
+          />
 
-  <Group justify="flex-end" mt="md">
-  <Group justify="flex-end" mt="md">
-  <Button
-    type="submit"
-    styles={{
-      root: {
-        backgroundColor: "#007bff", // Blue button color
-        color: "white", // White text color
-        borderRadius: "8px", // Curved corners
-        padding: "10px 20px", // Better padding
-        fontSize: "16px", // Readable text
-        transition: "box-shadow 0.3s ease-in-out",
-        marginTop: "10px", 
-        "&:hover": {
-          backgroundColor: "#0056b3", // Darker blue on hover
-          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)", // Shadow effect
-        },
-      },
-    }}
-  >
-    Next
-  </Button>
-</Group>
+          <TextInput
+            label="Major"
+            placeholder="Your major"
+            {...form.getInputProps("major")}
+            styles={textInputStyles}
+          />
 
-  </Group>
-</form>
+          <TextInput
+            label="Year"
+            placeholder="Freshman, Sophomore, etc."
+            {...form.getInputProps("year")}
+            styles={textInputStyles}
+          />
 
+          <TextInput
+            label="Age"
+            placeholder="Your age"
+            type="number"
+            {...form.getInputProps("age")}
+            styles={textInputStyles}
+          />
 
+          <TextInput
+            label="Gender"
+            placeholder="Your gender"
+            {...form.getInputProps("gender")}
+            styles={textInputStyles}
+          />
+
+          <TextInput
+            label="Location"
+            placeholder="Your location"
+            {...form.getInputProps("location")}
+            styles={textInputStyles}
+          />
+        </div>
+
+        <Button type="submit" color="#4B3F72" size="md" loading={isSubmitting}>
+          Save Profile
+        </Button>
+      </form>
     </div>
   );
 }

@@ -34,8 +34,8 @@ const PreferencesSettings = ({
   //============//
   //== submit ==//
   //============//
-  function Submit(){
-    function buttonHandle(){
+  function Submit() {
+    function buttonHandle() {
       // create data set to send back
       const updateUser: UserData = {
         name: currentUser.name,
@@ -47,20 +47,20 @@ const PreferencesSettings = ({
         major: currentUser.major,
         year: currentUser.year,
         interests: currentUser.interests,
-      
+
         photos: currentUser.photos,
-      
+
         dpAgeRange: preferencesForm.values.ageRange,
         dpDistance: preferencesForm.values.distance,
         dpShowMe: preferencesForm.values.showMe,
         dpInterests: preferencesForm.values.interests,
         dpMajors: preferencesForm.values.majors,
-      
+
         notiNewMatches: currentUser.notiNewMatches,
         notiMessages: currentUser.notiMessages,
         notiAppUpdates: currentUser.notiAppUpdates,
-        notiEmailNotifications : currentUser.notiEmailNotifications,
-      
+        notiEmailNotifications: currentUser.notiEmailNotifications,
+
         priProfileVisibility: currentUser.priProfileVisibility,
         priShowOnlineStatus: currentUser.priShowOnlineStatus,
         priShowLastActive: currentUser.priShowLastActive,
@@ -68,13 +68,14 @@ const PreferencesSettings = ({
       };
 
       //== send updateUse variable back to database ==//
-      SendData({updateUser});
+      SendData({ updateUser });
     }
-    return(
-      <Button type="submit" onClick={buttonHandle}>Save Changes</Button>
+    return (
+      <Button type="submit" onClick={buttonHandle}>
+        Save Changes
+      </Button>
     );
   }
-
 
   return (
     <Tabs.Panel value="preferences">

@@ -6,30 +6,36 @@ import {
   Badge,
   Button,
   Text,
+  Flex,
 } from "@mantine/core";
 import { IconEdit } from "@tabler/icons-react";
-import { UserData } from "@/types/types";
+import { profileDataProps } from "@/types/types";
+import { useAuth } from "../Auth/AuthContext";
 
-const ProfileHeader = ({ userData }: { userData: UserData }) => {
+const ProfileHeader = ({ profileData }: { profileData: profileDataProps }) => {
+  const { user } = useAuth();
+
   return (
     <Paper shadow="xs" p="md" radius="md" withBorder mb="xl">
       <Group justify="space-between" align="flex-start">
         <Group>
           <Avatar
-            src={userData.avatar}
+            src={user?.profile_picture}
             size={120}
             radius="md"
-            alt={userData.name}
+            alt={"User PP"}
           />
           <div>
-            <Title order={2}>{userData.name}</Title>
+            <Flex gap={4}>
+              <Title order={2}>{user?.first_name}</Title>
+              <Title order={2}>{user?.last_name}</Title>
+            </Flex>
             <Text size="sm" c="dimmed">
-              @{userData.username}
+              @{user?.username}
             </Text>
             <Group mt="md">
-              <Badge color="blue">{userData.major}</Badge>
-              <Badge color="violet">{userData.year}</Badge>
-              <Badge color="teal">{userData.age} years old</Badge>
+              <Badge color="violet">{profileData.year}</Badge>
+              <Badge color="teal">{profileData.age} years old</Badge>
             </Group>
           </div>
         </Group>
