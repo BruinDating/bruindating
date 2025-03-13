@@ -26,12 +26,12 @@ Note: it is recommended that before cloning this repository you create a parent 
 
 ```bash
 git clone https://github.com/BruinDating/bruindating-backend.git
+cd bruindating-frontend
 ```
 
 2. **Install dependencies**
 
 ```bash
-cd bruindating-frontend
 yarn install
 ```
 
