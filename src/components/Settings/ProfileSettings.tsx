@@ -29,7 +29,7 @@ const ProfileSettings = ({
   interestOptions,
 }: SettingsProps) => {
 
-
+  // load current user's profile information
   const profileForm = useForm({
     initialValues: {
       name: currentUser.name,
@@ -61,7 +61,7 @@ const ProfileSettings = ({
     }   
 
     function buttonHandle(){
-      // command to get user input for a profile picture, and then send it to the database 
+      // command to get user input for a profile picture
       fileInputRef.current?.click();
     }
 
@@ -73,7 +73,7 @@ const ProfileSettings = ({
           ref={fileInputRef}
           style={{ display: "none" }}
           accept="image/*" // Restrict to image files
-          onChange={handleFileChange} // Handle file selection
+          onChange={handleFileChange} 
         />
         <Button
           variant="light"

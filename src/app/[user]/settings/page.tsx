@@ -14,9 +14,39 @@ import NotificationSettings from "@/components/Settings/NotificationsSettings";
 import PrivacySettings from "@/components/Settings/PrivacySettings";
 import { settingsOptions, currentUser } from "@/mockData/mockData"; 
 
-//==!! when database is ready import currentUser from database. Also implement the SendData function to send data to the database !!==//
+// get user data from database
+const accessToken = localStorage.getItem("access_token");
+
+const getUserData = async () => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/user/`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const userData = await response.json();
+    return userData;
+  } catch (error) {
+    //==!! implement error handler !!==//
+    //errorHandler(error);
+    return null;
+  }
+};
+
+const CurrentUser = getUserData();
 
 const Settings = () => {
+
   const [activeTab, setActiveTab] = useState<string | null>("profile");
 
   const { majorOptions, yearOptions, interestOptions } = settingsOptions;
