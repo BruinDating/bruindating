@@ -7,7 +7,7 @@ from profiles.serializers import ProfileSerializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UCLAUser
-        fields = ["id", "email", "name"]
+        fields = ["id", "email", "first_name", "last_name", "profile_picture"]
 
 
 class MatchSerializer(serializers.ModelSerializer):
@@ -40,4 +40,4 @@ class PotentialMatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UCLAUser
-        fields = ["id", "email", "name", "profile"]
+        fields = ["id", "email", "first_name", "last_name", "profile_picture", "profile"]

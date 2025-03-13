@@ -62,6 +62,18 @@ class MatchViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=True, methods=["post"])
+    def like(self, request, pk=None):
+        return self.approve(request, pk)
+
+    @action(detail=True, methods=["post"])
+    def dislike(self, request, pk=None):
+        return self.reject(request, pk)
+
+    @action(detail=True, methods=["post"])
+    def superlike(self, request, pk=None):
+        return self.super_like(request, pk)
+
+    @action(detail=True, methods=["post"])
     def approve(self, request, pk=None):
         try:
             target_user = UCLAUser.objects.get(pk=pk)
@@ -85,9 +97,15 @@ class MatchViewSet(viewsets.ModelViewSet):
             user_match.matched.add(target_user)
             target_match.matched.add(request.user)
 
-            return Response({"status": "approved", "is_match": True, "message": f"You matched with {target_user.name}!"}, status=status.HTTP_200_OK)
+            return Response(
+                {"status": "approved", "is_match": True, "message": f"You matched with {target_user.first_name} {target_user.last_name}!"},
+                status=status.HTTP_200_OK,
+            )
 
-        return Response({"status": "approved", "is_match": False, "message": f"You approved {target_user.name}"}, status=status.HTTP_200_OK)
+        return Response(
+            {"status": "approved", "is_match": False, "message": f"You approved {target_user.first_name} {target_user.last_name}"},
+            status=status.HTTP_200_OK,
+        )
 
     @action(detail=True, methods=["post"])
     def reject(self, request, pk=None):
@@ -112,7 +130,9 @@ class MatchViewSet(viewsets.ModelViewSet):
             target_match, _ = Match.objects.get_or_create(user=target_user)
             target_match.matched.remove(request.user)
 
-        return Response({"status": "rejected", "message": f"You rejected {target_user.name}"}, status=status.HTTP_200_OK)
+        return Response(
+            {"status": "rejected", "message": f"You rejected {target_user.first_name} {target_user.last_name}"}, status=status.HTTP_200_OK
+        )
 
     @action(detail=True, methods=["post"])
     def super_like(self, request, pk=None):
@@ -140,10 +160,14 @@ class MatchViewSet(viewsets.ModelViewSet):
             target_match.matched.add(request.user)
 
             return Response(
-                {"status": "super_liked", "is_match": True, "message": f"You matched with {target_user.name}!"}, status=status.HTTP_200_OK
+                {"status": "super_liked", "is_match": True, "message": f"You matched with {target_user.first_name} {target_user.last_name}!"},
+                status=status.HTTP_200_OK,
             )
 
-        return Response({"status": "super_liked", "is_match": False, "message": f"You super liked {target_user.name}"}, status=status.HTTP_200_OK)
+        return Response(
+            {"status": "super_liked", "is_match": False, "message": f"You super liked {target_user.first_name} {target_user.last_name}"},
+            status=status.HTTP_200_OK,
+        )
 
 
 class PotentialMatchViewSet(viewsets.ReadOnlyModelViewSet):

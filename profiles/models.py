@@ -7,6 +7,7 @@ class Profile(models.Model):
     bio = models.TextField(blank=True)
     major = models.CharField(max_length=100, blank=True)
     year = models.CharField(max_length=20, blank=True)
+    age = models.PositiveSmallIntegerField()
     interests = models.JSONField(default=list, blank=True)
     photos = models.JSONField(default=list, blank=True)
     location = models.CharField(max_length=100, blank=True)
