@@ -1,4 +1,4 @@
-import { Box, Button, Skeleton, Stack } from "@mantine/core";
+import { Avatar, Box, Button, Skeleton, Stack } from "@mantine/core";
 import {
   IconHome,
   IconSearch,
@@ -11,10 +11,12 @@ import {
 import { Divider } from "@mantine/core";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useAuth } from "@/components/Auth/AuthContext";
 
 const NavBar = () => {
   const params = useParams();
-  const user = params.user as string;
+  const username = params.user as string;
+  const { user } = useAuth();
 
   return (
     <Stack h="100%" justify="space-between">
@@ -25,7 +27,7 @@ const NavBar = () => {
           variant="transparent"
           size="xl"
           component={Link}
-          href={`/${user}/home`}
+          href={`/${username}/home`}
         >
           Home
         </Button>
@@ -36,7 +38,7 @@ const NavBar = () => {
           variant="transparent"
           size="xl"
           component={Link}
-          href={`/${user}/matches`}
+          href={`/${username}/matches`}
         >
           Matches
         </Button>
@@ -47,7 +49,7 @@ const NavBar = () => {
           variant="transparent"
           size="xl"
           component={Link}
-          href={`/${user}/chat`}
+          href={`/${username}/chat`}
         >
           Messages
         </Button>
@@ -58,7 +60,7 @@ const NavBar = () => {
           variant="transparent"
           size="xl"
           component={Link}
-          href={`/${user}/settings`}
+          href={`/${username}/settings`}
         >
           Settings
         </Button>
@@ -71,10 +73,10 @@ const NavBar = () => {
           color="gray"
           variant="transparent"
           size="xl"
-          leftSection={<IconUserCircle />}
+          leftSection={<Avatar src={user?.profile_picture} radius="xl" />}
           rightSection={<IconArrowRight />}
           component={Link}
-          href={`/${user}/profile`}
+          href={`/${username}/profile`}
         >
           Burak Arslan
         </Button>

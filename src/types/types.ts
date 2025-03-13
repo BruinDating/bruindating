@@ -1,3 +1,4 @@
+import { StaticImageData } from "next/image";
 import { RefObject } from "react";
 
 export interface UserData {
@@ -74,6 +75,7 @@ export interface HeaderProps {
 // Matches
 
 export interface MatchData extends UserData {
+  id: number;
   matchPercentage?: number;
   lastActive?: string;
 }
@@ -86,4 +88,32 @@ export interface MatchCardProps {
 export interface SortOption {
   value: string;
   label: string;
+}
+
+export interface profileDataProps {
+  avatar: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  age: number;
+  bio: string;
+  major: string;
+  year: string;
+  interests: string[];
+  photos: string[];
+  location: string;
+  gender: string;
+  genderPreference: string[];
+}
+
+export interface SwipingCarouselProps {
+  images: (string | StaticImageData)[];
+  name?: string;
+  age?: number;
+  major?: string;
+  bio?: string;
+}
+
+export interface ExtendedMatchData extends MatchData {
+  id: number;
 }

@@ -1,7 +1,7 @@
 import { TabsPanel, Paper, Title, Flex, Badge } from "@mantine/core";
-import { UserData } from "@/types/types";
+import { profileDataProps } from "@/types/types";
 
-const Interests = ({ userData }: { userData: UserData }) => {
+const Interests = ({ profileData }: { profileData: profileDataProps }) => {
   return (
     <TabsPanel value="interests">
       <Paper p="md" shadow="xs" radius="md" withBorder>
@@ -9,7 +9,7 @@ const Interests = ({ userData }: { userData: UserData }) => {
           Interests
         </Title>
         <Flex gap="md" wrap="wrap">
-          {userData.interests.map((interest, index) => (
+          {profileData.interests.map((interest, index) => (
             <Badge size="lg" key={index} color="blue" variant="light">
               {interest}
             </Badge>

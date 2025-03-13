@@ -35,7 +35,7 @@ const ChatBox = ({
       }}
     >
       <Flex gap={10} align="center">
-        {avatar ? (
+        {avatar && avatar !== "" ? (
           <Avatar src={avatar} radius="xl" size="md" />
         ) : (
           <IconUserCircle size={40} />

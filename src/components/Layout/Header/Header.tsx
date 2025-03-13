@@ -40,7 +40,7 @@ const Header = ({
       <Group>
         {user && (
           <Group>
-            <Avatar src={user.profile_picture} radius="xl" />
+            <Avatar src={user?.profile_picture} radius="xl" />
             <Text>
               {user.first_name} {user.last_name}
             </Text>

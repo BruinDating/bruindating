@@ -1,7 +1,7 @@
 "use client";
 
 import "@mantine/carousel/styles.css";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import {
   Carousel,
   CarouselSlide,
@@ -9,8 +9,16 @@ import {
   useAnimationOffsetEffect,
 } from "@mantine/carousel";
 import { useState } from "react";
+import { Flex, Stack, Text } from "@mantine/core";
+import { SwipingCarouselProps } from "@/types/types";
 
-const SwipingCarousel = ({ images }: { images: StaticImageData[] }) => {
+const SwipingCarousel = ({
+  images,
+  name,
+  age,
+  major,
+  bio,
+}: SwipingCarouselProps) => {
   const slides = images.map((img, i) => (
     <CarouselSlide key={i}>
       <Image src={img} fill alt="profile photo" />
@@ -21,15 +29,25 @@ const SwipingCarousel = ({ images }: { images: StaticImageData[] }) => {
   useAnimationOffsetEffect(embla, 400);
 
   return (
-    <Carousel
-      getEmblaApi={setEmbla}
-      key={JSON.stringify(images)}
-      height={800}
-      withIndicators
-      loop
-    >
-      {slides}
-    </Carousel>
+    <>
+      <Carousel
+        getEmblaApi={setEmbla}
+        key={JSON.stringify(images)}
+        height={450}
+        withIndicators
+        loop
+      >
+        {slides}
+      </Carousel>
+      <Stack style={{ backgroundColor: "#EEEEEE" }} p="lg">
+        <Flex gap={5}>
+          <Text>{name},</Text>
+          <Text>Age: {age}</Text>
+        </Flex>
+        <Text>Major: {major}</Text>
+        <Text>{bio}</Text>
+      </Stack>
+    </>
   );
 };
 

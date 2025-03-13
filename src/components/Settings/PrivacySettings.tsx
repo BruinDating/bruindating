@@ -14,7 +14,7 @@ import { useForm } from "@mantine/form";
 import { UserData } from "@/types/types";
 import { SendData } from "@/components/Settings/SendData";
 
-const PrivacySettings = ({currentUser}:{currentUser: UserData}) => {
+const PrivacySettings = ({ currentUser }: { currentUser: UserData }) => {
   const privacyForm = useForm({
     initialValues: {
       profileVisibility: currentUser.priProfileVisibility,
@@ -27,8 +27,8 @@ const PrivacySettings = ({currentUser}:{currentUser: UserData}) => {
   //============//
   //== submit ==//
   //============//
-  function Submit(){
-    function buttonHandle(){
+  function Submit() {
+    function buttonHandle() {
       // create data set to send back
       const updateUser: UserData = {
         name: currentUser.name,
@@ -40,20 +40,20 @@ const PrivacySettings = ({currentUser}:{currentUser: UserData}) => {
         major: currentUser.major,
         year: currentUser.year,
         interests: currentUser.interests,
-      
+
         photos: currentUser.photos,
-      
+
         dpAgeRange: currentUser.dpAgeRange,
         dpDistance: currentUser.dpDistance,
         dpShowMe: currentUser.dpShowMe,
         dpInterests: currentUser.dpInterests,
         dpMajors: currentUser.dpMajors,
-      
+
         notiNewMatches: currentUser.notiNewMatches,
         notiMessages: currentUser.notiMessages,
         notiAppUpdates: currentUser.notiAppUpdates,
-        notiEmailNotifications : currentUser.notiEmailNotifications,
-      
+        notiEmailNotifications: currentUser.notiEmailNotifications,
+
         priProfileVisibility: privacyForm.values.profileVisibility,
         priShowOnlineStatus: privacyForm.values.showOnlineStatus,
         priShowLastActive: privacyForm.values.showLastActive,
@@ -61,10 +61,12 @@ const PrivacySettings = ({currentUser}:{currentUser: UserData}) => {
       };
 
       //== send updateUse variable back to database ==//
-      SendData({updateUser});
+      SendData({ updateUser });
     }
-    return(
-      <Button type="submit" onClick={buttonHandle}>Save Changes</Button>
+    return (
+      <Button type="submit" onClick={buttonHandle}>
+        Save Changes
+      </Button>
     );
   }
 

@@ -7,16 +7,16 @@ import {
   Title,
   Text,
 } from "@mantine/core";
-import { UserData } from "@/types/types";
+import { profileDataProps } from "@/types/types";
 
-const About = ({ userData }: { userData: UserData }) => {
+const About = ({ profileData }: { profileData: profileDataProps }) => {
   return (
     <TabsPanel value="about">
       <Paper p="md" shadow="xs" radius="md" withBorder>
         <Title order={4} mb="sm">
           Bio
         </Title>
-        <Text>{userData.bio}</Text>
+        <Text>{profileData.bio}</Text>
 
         <Divider my="md" />
 
@@ -26,15 +26,15 @@ const About = ({ userData }: { userData: UserData }) => {
         <Grid>
           <GridCol span={6}>
             <Text fw={500}>Age:</Text>
-            <Text>{userData.age}</Text>
+            <Text>{profileData.age}</Text>
           </GridCol>
           <GridCol span={6}>
             <Text fw={500}>Major:</Text>
-            <Text>{userData.major}</Text>
+            <Text>{profileData.major}</Text>
           </GridCol>
           <GridCol span={6}>
             <Text fw={500}>Year:</Text>
-            <Text>{userData.year}</Text>
+            <Text>{profileData.year}</Text>
           </GridCol>
         </Grid>
       </Paper>
