@@ -15,6 +15,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "bio",
             "major",
             "year",
+            "age",
             "interests",
             "photos",
             "location",

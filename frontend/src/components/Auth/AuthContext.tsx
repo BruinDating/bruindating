@@ -71,6 +71,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const userData = await response.json();
         setUser(userData);
         setIsAuthenticated(true);
+
+        // After setting user data, check if they have a profile
+        const profileResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/profiles/`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (profileResponse.ok) {
+          const profiles = await profileResponse.json();
+          const hasProfile = profiles.some(
+            (profile: any) => profile.email === userData.email
+          );
+
+          if (!hasProfile) {
+            router.push('/questionnaire');
+          } else {
+            router.push(`/${userData.username}/home`);
+          }
+        } else {
+          // If we can't check profiles, default to questionnaire
+          router.push('/questionnaire');
+        }
       } else {
         const refreshed = await refreshToken();
         if (!refreshed) {

@@ -6,8 +6,9 @@ import { Dropzone } from "@mantine/dropzone";
 import { IconPhoto } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { fetchProfileData, submitQuestionnaire } from "@/services/api";
+import { fetchProfileData } from "@/services/api";
 import { useAuth } from "@/components/Auth/AuthContext";
+import { profileDataProps } from "@/types/types";
 
 const textInputStyles = {
   label: {
@@ -64,63 +65,72 @@ export default function Page() {
   });
 
   useEffect(() => {
-    const loadUserData = async () => {
-      if (!isAuthenticated) return;
-
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const accessToken = localStorage.getItem("access_token");
-        const profileData = await fetchProfileData({ accessToken });
-
-        form.setValues({
-          bio: profileData.bio || "",
-          major: profileData.major || "",
-          year: profileData.year || "",
-          age: profileData.age || 18,
-          interests: profileData.interests || [],
-          gender: profileData.gender || "",
-          genderPreference: profileData.genderPreference || [],
-          location: profileData.location || "",
-        });
-
-        setImage(profileData.avatar || null);
-      } catch (err) {
-        setError("Failed to load profile data. Please try again later.");
-        console.error("Error loading profile data:", err);
-      } finally {
-        setIsLoading(false);
+    const checkAuth = async () => {
+      if (!isAuthenticated || !user?.email) {
+        router.push('/login');
+        return;
       }
+      setIsLoading(false);
     };
 
-    loadUserData();
-  }, [isAuthenticated]);
+    checkAuth();
+  }, [isAuthenticated, user, router]);
 
+  const handleSubmit = async (values: QuestionnaireFormValues) => {
+    if (!isAuthenticated || !user?.email) return;
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      const accessToken = localStorage.getItem("access_token");
+
+      // Log the raw form values
+      console.log('Raw form values:', values);
+      console.log('Age value type:', typeof values.age);
+
+      const profileData = {
+        ...values,
+        age: Number(values.age),
+        photos: image ? [image] : [],
+        email: user.email,
+        interests: values.interests.length > 0 ? values.interests : ["None"],
+        gender_preference: values.genderPreference
+      };
+
+      console.log('Sending profile data:', profileData);
+      console.log('Age in profile data:', typeof profileData.age, profileData.age);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profiles/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(profileData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Server response:', errorData);
+        throw new Error(`Failed to create profile: ${JSON.stringify(errorData)}`);
+      }
+
+      const username = user.email.split('@')[0];
+      router.push(`/${username}/home`);
+    } catch (err) {
+      setError("Failed to create profile. Please try again.");
+      console.error("Profile creation error:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle image upload
   const handleDrop = (files: File[]) => {
     const file = files[0];
     const reader = new FileReader();
     reader.onload = (event) => setImage(event.target?.result as string);
     reader.readAsDataURL(file);
-  };
-
-  const handleSubmit = async (values: QuestionnaireFormValues) => {
-    if (!isAuthenticated) return;
-
-    try {
-      setIsSubmitting(true);
-      setError(null);
-
-      const accessToken = localStorage.getItem("access_token");
-      await submitQuestionnaire(values, accessToken);
-
-      router.push(`/${user?.username}/home`);
-    } catch (err) {
-      setError("Failed to submit questionnaire. Please try again later.");
-      console.error("Error submitting questionnaire:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   if (isLoading) {

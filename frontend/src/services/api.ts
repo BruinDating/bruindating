@@ -137,7 +137,8 @@ export const fetchPotentialMatches = async (
     if (!accessToken) {
       throw new Error("No access token found");
     }
-
+    // this line below can cause no users to pop up if we don't have a lot of users in database, 
+    //if we want everyone can match with each other, then we should change
     const response = await fetch(`${API_URL}/matching/potential/`, {
       method: "GET",
       headers: {
