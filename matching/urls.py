@@ -8,4 +8,5 @@ router.register(r"potential", PotentialMatchViewSet, basename="potential")
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("approved_by/", MatchViewSet.as_view({"get": "approved_by"}), name="direct-approved-by"),
 ]
