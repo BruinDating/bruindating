@@ -20,7 +20,7 @@ const accessToken = localStorage.getItem("access_token");
 const getUserData = async () => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/user/`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/user/profile`,
       {
         method: "GET",
         headers: {
