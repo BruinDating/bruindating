@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bruin Dating Frontend
 
-## Getting Started
+Bruin Dating is a web application designed and built for students at UCLA. Through the application you are able to connect with your fellow bruins, and make friendships and maybe even meet the love of your life. This repository only contains the details for the frontend of the application. The backend is located here: [https://github.com/BruinDating/bruindating-backend](https://github.com/BruinDating/bruindating-backend)
 
-First, run the development server:
+## Getting started
+
+### Required Technologies
+
+- Node.js (v18 +)
+- yarn
+### Installation
+#### Entire shell prompt
 
 ```bash
-npm run dev
-# or
+git clone https://github.com/BruinDating/bruindating-frontend.git
+cd bruindating-frontend
+yarn install
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### Step by step
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone the repository**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Note: it is recommended that before cloning this repository you create a parent folder that will hold both the frontend and the backend for this application. 
+
+```bash
+git clone https://github.com/BruinDating/bruindating-backend.git
+```
+
+2. **Install dependencies**
+
+```bash
+cd bruindating-frontend
+yarn install
+```
+
+3. **Run the development server**
+
+```bash
+yarn dev      # or npm run dev
+```
+
+The application will now be available at [http://localhost:3000](http://localhost:3000/)
+
+## Features
+
+### User Authentication
+
+An important feature of Bruin Dating is that only students at UCLA are able to access it. To do this users will be required to use their UCLA email to sign up for Bruin Dating. Users will also be required to use DUO Mobile authentication to verify that it is you who is logging in or signing up. 
+
+### How to meet people
+
+After you fill out the questionnaire an algorithm is used to show you the profile of a potential match and you will be able to swipe left or right (ignore or like). When both of you give each other a like you will unlock the ability to message each other with the built in chat feature. 
+
+## Technology Stack
+
+- [Next.js](https://nextjs.org/) - React framework
+- [TypeScript](https://www.typescriptlang.org/) - JavaScript with types
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [Mantine](https://mantine.dev/) - React components library
+- [ESLint](https://eslint.org/) - Code linting
+- [PostCSS](https://postcss.org/) - CSS processing
+
 
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
