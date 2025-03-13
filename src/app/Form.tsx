@@ -38,7 +38,7 @@ export default function Form() {
          {/* <button className=' font-medium text-base text-vi'></button> */}
            </div>
          <div className='mt-8 flex flex-col gap-y-4'>
-            <button className='active:scale-[.98] active:duration-75 hover:scale-[1.01] ease-in-out transition-all py-3 rounded-xl bg-[#2D68C4] text-[#F2A900] text-lg font-bold' onClick={() => router.push("/chat")}> Sign in</button>
+            <button className='active:scale-[.98] active:duration-75 hover:scale-[1.01] ease-in-out transition-all py-3 rounded-xl bg-[#2D68C4] text-[#F2A900] text-lg font-bold'> Sign in</button>
              </div>
             <div className='mt-8 flex justify-center itemms-center'>
                 <p className=' font-medium text-base text-gray-500'> No account?</p>
