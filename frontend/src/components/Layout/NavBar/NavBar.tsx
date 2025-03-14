@@ -17,6 +17,11 @@ const NavBar = () => {
   const params = useParams();
   const username = params.user as string;
   const { user } = useAuth();
+  
+  // Create display name from first_name and last_name
+  const displayName = user ? 
+    `${user.first_name || ''} ${user.last_name || ''}`.trim() : 
+    'Loading...';
 
   return (
     <Stack h="100%" justify="space-between">
@@ -78,7 +83,7 @@ const NavBar = () => {
           component={Link}
           href={`/${username}/profile`}
         >
-          Burak Arslan
+          {displayName}
         </Button>
       </div>
     </Stack>
