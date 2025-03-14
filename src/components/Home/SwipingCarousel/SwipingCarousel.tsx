@@ -21,7 +21,7 @@ const SwipingCarousel = ({
 }: SwipingCarouselProps) => {
   const slides = images.map((img, i) => (
     <CarouselSlide key={i}>
-      <Image src={img} fill alt="profile photo" />
+      <Image src={img} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" alt="profile photo" />
     </CarouselSlide>
   ));
   const [embla, setEmbla] = useState<Embla | null>(null);

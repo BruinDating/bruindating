@@ -104,6 +104,7 @@ export interface profileDataProps {
   location: string;
   gender: string;
   genderPreference: string[];
+  email?: string;
 }
 
 export interface SwipingCarouselProps {

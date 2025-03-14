@@ -154,20 +154,33 @@ const Settings = () => {
             Privacy
           </Tabs.Tab>
         </Tabs.List>
-        <ProfileSettings
-          currentUser={userData}
-          majorOptions={settingsOptions.majorOptions}
-          yearOptions={settingsOptions.yearOptions}
-          interestOptions={settingsOptions.interestOptions}
-        />
-        <PreferencesSettings
-          currentUser={userData}
-          majorOptions={settingsOptions.majorOptions}
-          yearOptions={settingsOptions.yearOptions}
-          interestOptions={settingsOptions.interestOptions}
-        />
-        <NotificationSettings currentUser={userData} />
-        <PrivacySettings currentUser={userData} />
+
+        <Tabs.Panel value="profile">
+          <ProfileSettings
+            userId={userData.username}
+            majorOptions={settingsOptions.majorOptions}
+            yearOptions={settingsOptions.yearOptions}
+            interestOptions={settingsOptions.interestOptions}
+            userData={userData}
+          />
+        </Tabs.Panel>
+        
+        <Tabs.Panel value="preferences">
+          <PreferencesSettings
+            currentUser={userData}
+            majorOptions={settingsOptions.majorOptions}
+            yearOptions={settingsOptions.yearOptions}
+            interestOptions={settingsOptions.interestOptions}
+          />
+        </Tabs.Panel>
+        
+        <Tabs.Panel value="notifications">
+          <NotificationSettings currentUser={userData} />
+        </Tabs.Panel>
+        
+        <Tabs.Panel value="privacy">
+          <PrivacySettings currentUser={userData} />
+        </Tabs.Panel>
       </Tabs>
     </Container>
   );
