@@ -18,7 +18,7 @@ const NavBar = () => {
   const username = params.user as string;
   const { user } = useAuth();
   
-  console.log("NavBar接收到的用户数据:", user);
+  console.log("User data received by NavBar:", user);
 
   return (
     <Stack h="100%" justify="space-between">

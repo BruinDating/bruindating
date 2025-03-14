@@ -319,12 +319,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const updateUser = (userData: Partial<User>, additionalData?: any) => {
     if (!user) return;
     
-    console.log("AuthContext接收到的更新数据:", userData);
-    console.log("AuthContext的用户数据更新前:", user);
+    console.log("Update data received by AuthContext:", userData);
+    console.log("User data before update in AuthContext:", user);
     
     // Merge new data with existing data
     const updatedUser = { ...user, ...userData };
-    console.log("AuthContext的用户数据更新后:", updatedUser);
+    console.log("User data after update in AuthContext:", updatedUser);
     
     setUser(updatedUser);
     

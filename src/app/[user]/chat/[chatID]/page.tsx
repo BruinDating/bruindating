@@ -27,7 +27,7 @@ const ChatPage = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
   
-  // 当前用户的用户名，用于识别消息是否是自己发送的
+  // Current user's username, used to identify if a message was sent by the current user
   const currentUsername = user?.username || "dev_user";
 
   useEffect(() => {
@@ -52,11 +52,11 @@ const ChatPage = () => {
 
           const chatMessages = await fetchChatMessages(chatID, accessToken);
           
-          // 标记当前用户的消息为"me"
+          // Mark current user's messages as "me"
           const processedMessages = chatMessages.map(msg => ({
             ...msg,
             sender: msg.sender === currentUsername ? "me" : msg.sender,
-            // 格式化时间戳为更友好的格式
+            // Format timestamp to be more user-friendly
             timestamp: formatTimestamp(msg.timestamp)
           }));
           
@@ -80,7 +80,7 @@ const ChatPage = () => {
           const accessToken = localStorage.getItem("access_token");
           const chatMessages = await fetchChatMessages(chatID, accessToken);
           
-          // 标记当前用户的消息为"me"，并格式化时间戳
+          // Mark current user's messages as "me" and format timestamps
           const processedMessages = chatMessages.map(msg => ({
             ...msg,
             sender: msg.sender === currentUsername ? "me" : msg.sender,
@@ -97,18 +97,18 @@ const ChatPage = () => {
     return () => clearInterval(intervalId);
   }, [chatID, isAuthenticated, currentUsername]);
 
-  // 格式化时间戳的辅助函数
+  // Helper function to format timestamps
   const formatTimestamp = (timestamp: string): string => {
     try {
-      // 如果是ISO格式的时间戳，格式化为更友好的形式
+      // If timestamp is in ISO format, convert to a more friendly format
       if (timestamp.includes('T')) {
         const date = new Date(timestamp);
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       }
-      // 如果已经是友好格式，则直接返回
+      // If already in a friendly format, return as is
       return timestamp;
     } catch (error) {
-      return timestamp; // 发生错误时返回原始时间戳
+      return timestamp; // Return original timestamp if error occurs
     }
   };
 
@@ -132,7 +132,7 @@ const ChatPage = () => {
         accessToken
       );
 
-      // 处理发送的消息，标记为"me"并格式化时间戳
+      // Process sent message, mark as "me" and format timestamp
       const processedMessage = {
         ...sentMessage,
         sender: "me",
