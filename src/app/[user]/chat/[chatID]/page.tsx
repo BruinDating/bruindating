@@ -15,7 +15,7 @@ import { useAuth } from "@/components/Auth/AuthContext";
 import { Message } from "@/types/types";
 
 const ChatPage = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const params = useParams();
   const chatID = params.chatID as string;
 
@@ -26,6 +26,9 @@ const ChatPage = () => {
   const [chatUser, setChatUser] = useState({ name: "", avatar: null });
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  
+  // 当前用户的用户名，用于识别消息是否是自己发送的
+  const currentUsername = user?.username || "dev_user";
 
   useEffect(() => {
     const loadChatData = async () => {
@@ -48,7 +51,16 @@ const ChatPage = () => {
           });
 
           const chatMessages = await fetchChatMessages(chatID, accessToken);
-          setMessages(chatMessages);
+          
+          // 标记当前用户的消息为"me"
+          const processedMessages = chatMessages.map(msg => ({
+            ...msg,
+            sender: msg.sender === currentUsername ? "me" : msg.sender,
+            // 格式化时间戳为更友好的格式
+            timestamp: formatTimestamp(msg.timestamp)
+          }));
+          
+          setMessages(processedMessages);
         } else {
           setError("Chat room not found");
         }
@@ -67,7 +79,15 @@ const ChatPage = () => {
         try {
           const accessToken = localStorage.getItem("access_token");
           const chatMessages = await fetchChatMessages(chatID, accessToken);
-          setMessages(chatMessages);
+          
+          // 标记当前用户的消息为"me"，并格式化时间戳
+          const processedMessages = chatMessages.map(msg => ({
+            ...msg,
+            sender: msg.sender === currentUsername ? "me" : msg.sender,
+            timestamp: formatTimestamp(msg.timestamp)
+          }));
+          
+          setMessages(processedMessages);
         } catch (err) {
           console.error("Error polling messages:", err);
         }
@@ -75,7 +95,22 @@ const ChatPage = () => {
     }, 5000);
 
     return () => clearInterval(intervalId);
-  }, [chatID, isAuthenticated]);
+  }, [chatID, isAuthenticated, currentUsername]);
+
+  // 格式化时间戳的辅助函数
+  const formatTimestamp = (timestamp: string): string => {
+    try {
+      // 如果是ISO格式的时间戳，格式化为更友好的形式
+      if (timestamp.includes('T')) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+      // 如果已经是友好格式，则直接返回
+      return timestamp;
+    } catch (error) {
+      return timestamp; // 发生错误时返回原始时间戳
+    }
+  };
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -97,7 +132,14 @@ const ChatPage = () => {
         accessToken
       );
 
-      setMessages((prevMessages) => [...prevMessages, sentMessage]);
+      // 处理发送的消息，标记为"me"并格式化时间戳
+      const processedMessage = {
+        ...sentMessage,
+        sender: "me",
+        timestamp: formatTimestamp(sentMessage.timestamp)
+      };
+
+      setMessages((prevMessages) => [...prevMessages, processedMessage]);
       setNewMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
