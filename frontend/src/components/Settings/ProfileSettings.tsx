@@ -40,25 +40,20 @@ const ProfileSettings = ({
     },
   });
 
-  const [pfp, setPfp] = useState(currentUser.avatar); // load current users's pfp
+  const [pfp, setPfp] = useState(currentUser.avatar);
 
-  //=====================//
-  //== profile picture ==//
-  //=====================//
   function ProfilePic() {
-    //== get user input for profile picture ==//
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-      const file = event.target.files?.[0]; // Get the selected file
+      const file = event.target.files?.[0];
       if (file) {
-        const imageUrl = URL.createObjectURL(file); // Convert file to a temporary URL
-        setPfp(imageUrl); // Update the profile picture
+        const imageUrl = URL.createObjectURL(file);
+        setPfp(imageUrl);
       }
     }
 
     function buttonHandle() {
-      // command to get user input for a profile picture, and then send it to the database
       fileInputRef.current?.click();
     }
 
@@ -69,8 +64,8 @@ const ProfileSettings = ({
           type="file"
           ref={fileInputRef}
           style={{ display: "none" }}
-          accept="image/*" // Restrict to image files
-          onChange={handleFileChange} // Handle file selection
+          accept="image/*"
+          onChange={handleFileChange}
         />
         <Button
           variant="light"
@@ -85,56 +80,40 @@ const ProfileSettings = ({
     );
   }
 
-  //============//
-  //== submit ==//
-  //============//
-  function Submit() {
-    function buttonHandle() {
-      // create data set to send back
-      const updateUser: UserData = {
-        name: profileForm.values.name,
-        username: profileForm.values.username,
-        avatar: pfp,
-        email: profileForm.values.email,
-        bio: profileForm.values.bio,
-        age: profileForm.values.age,
-        major: profileForm.values.major,
-        year: profileForm.values.year,
-        interests: profileForm.values.interests,
-
-        photos: currentUser.photos,
-
-        dpAgeRange: currentUser.dpAgeRange,
-        dpDistance: currentUser.dpDistance,
-        dpShowMe: currentUser.dpShowMe,
-        dpInterests: currentUser.dpInterests,
-        dpMajors: currentUser.dpMajors,
-
-        notiNewMatches: currentUser.notiNewMatches,
-        notiMessages: currentUser.notiMessages,
-        notiAppUpdates: currentUser.notiAppUpdates,
-        notiEmailNotifications: currentUser.notiEmailNotifications,
-
-        priProfileVisibility: currentUser.priProfileVisibility,
-        priShowOnlineStatus: currentUser.priShowOnlineStatus,
-        priShowLastActive: currentUser.priShowLastActive,
-        priAllowTagging: currentUser.priAllowTagging,
-      };
-
-      //== send updateUse variable back to database ==//
-      SendData({ updateUser });
-    }
-    return (
-      <Button type="submit" onClick={buttonHandle}>
-        Save Changes
-      </Button>
-    );
-  }
-
   return (
     <Tabs.Panel value="profile">
       <Paper shadow="xs" p="md" radius="md" withBorder>
-        <form onSubmit={profileForm.onSubmit((values) => console.log(values))}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const updateUser: UserData = {
+              name: profileForm.values.name,
+              username: profileForm.values.username,
+              avatar: pfp,
+              email: profileForm.values.email,
+              bio: profileForm.values.bio,
+              age: profileForm.values.age,
+              major: profileForm.values.major,
+              year: profileForm.values.year,
+              interests: profileForm.values.interests,
+              photos: currentUser.photos,
+              dpAgeRange: currentUser.dpAgeRange,
+              dpDistance: currentUser.dpDistance,
+              dpShowMe: currentUser.dpShowMe,
+              dpInterests: currentUser.dpInterests,
+              dpMajors: currentUser.dpMajors,
+              notiNewMatches: currentUser.notiNewMatches,
+              notiMessages: currentUser.notiMessages,
+              notiAppUpdates: currentUser.notiAppUpdates,
+              notiEmailNotifications: currentUser.notiEmailNotifications,
+              priProfileVisibility: currentUser.priProfileVisibility,
+              priShowOnlineStatus: currentUser.priShowOnlineStatus,
+              priShowLastActive: currentUser.priShowLastActive,
+              priAllowTagging: currentUser.priAllowTagging,
+            };
+            SendData({ updateUser });
+          }}
+        >
           <Title order={4} mb="md">
             Profile Information
           </Title>
@@ -200,7 +179,7 @@ const ProfileSettings = ({
           />
 
           <Group justify="flex-end" mt="xl">
-            <Submit />
+            <Button type="submit">Save Changes</Button>
           </Group>
         </form>
       </Paper>

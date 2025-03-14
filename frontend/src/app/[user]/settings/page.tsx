@@ -17,13 +17,12 @@ import { useAuth } from "@/components/Auth/AuthContext";
 import { UserData } from "@/types/types";
 
 const Settings = () => {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<string | null>("profile");
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // These options would typically come from an API
   const settingsOptions = {
     majorOptions: [
       { value: "computer_science", label: "Computer Science" },
@@ -53,7 +52,7 @@ const Settings = () => {
 
   useEffect(() => {
     const loadUserData = async () => {
-      if (!isAuthenticated) return;
+      if (!isAuthenticated || !user) return;
 
       try {
         setIsLoading(true);
@@ -62,24 +61,24 @@ const Settings = () => {
         const accessToken = localStorage.getItem("access_token");
         const profileData = await fetchProfileData({ accessToken });
 
-        // Safely create name from first and last name
-        const firstName = profileData.firstName || "";
-        const lastName = profileData.lastName || "";
+        const firstName = profileData.firstName || user.first_name || "";
+        const lastName = profileData.lastName || user.last_name || "";
         const name =
           firstName || lastName
             ? `${firstName} ${lastName}`.trim()
+            : user.first_name && user.last_name
+            ? `${user.first_name} ${user.last_name}`.trim()
             : "Unknown User";
 
-        // Safely create email
-        const username = profileData.username || "user";
-        const email = `${username}@ucla.edu`;
+        const email = user.email || `${profileData.username}@ucla.edu`;
+        const username =
+          user.username || profileData.username || email.split("@")[0];
 
-        // Convert profile data to user data format with fallbacks
         setUserData({
           name: name,
           username: username,
           email: email,
-          avatar: profileData.avatar,
+          avatar: profileData.avatar || user.profile_picture,
           bio: profileData.bio || "",
           age: profileData.age || 18,
           major: profileData.major || "",
@@ -87,20 +86,17 @@ const Settings = () => {
           interests: profileData.interests || [],
           photos: profileData.photos || [],
 
-          // Default values for preferences
           dpAgeRange: [18, 30],
           dpDistance: 50,
           dpShowMe: profileData.gender === "male" ? "female" : "male",
           dpInterests: [],
           dpMajors: [],
 
-          // Default values for notifications
           notiNewMatches: true,
           notiMessages: true,
           notiAppUpdates: true,
           notiEmailNotifications: true,
 
-          // Default values for privacy
           priProfileVisibility: "public",
           priShowOnlineStatus: true,
           priShowLastActive: true,
@@ -115,7 +111,7 @@ const Settings = () => {
     };
 
     loadUserData();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   if (isLoading) {
     return (

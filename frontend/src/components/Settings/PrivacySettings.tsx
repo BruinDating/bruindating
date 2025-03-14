@@ -24,56 +24,40 @@ const PrivacySettings = ({ currentUser }: { currentUser: UserData }) => {
     },
   });
 
-  //============//
-  //== submit ==//
-  //============//
-  function Submit() {
-    function buttonHandle() {
-      // create data set to send back
-      const updateUser: UserData = {
-        name: currentUser.name,
-        username: currentUser.username,
-        avatar: currentUser.avatar,
-        email: currentUser.email,
-        bio: currentUser.bio,
-        age: currentUser.age,
-        major: currentUser.major,
-        year: currentUser.year,
-        interests: currentUser.interests,
-
-        photos: currentUser.photos,
-
-        dpAgeRange: currentUser.dpAgeRange,
-        dpDistance: currentUser.dpDistance,
-        dpShowMe: currentUser.dpShowMe,
-        dpInterests: currentUser.dpInterests,
-        dpMajors: currentUser.dpMajors,
-
-        notiNewMatches: currentUser.notiNewMatches,
-        notiMessages: currentUser.notiMessages,
-        notiAppUpdates: currentUser.notiAppUpdates,
-        notiEmailNotifications: currentUser.notiEmailNotifications,
-
-        priProfileVisibility: privacyForm.values.profileVisibility,
-        priShowOnlineStatus: privacyForm.values.showOnlineStatus,
-        priShowLastActive: privacyForm.values.showLastActive,
-        priAllowTagging: privacyForm.values.allowTagging,
-      };
-
-      //== send updateUse variable back to database ==//
-      SendData({ updateUser });
-    }
-    return (
-      <Button type="submit" onClick={buttonHandle}>
-        Save Changes
-      </Button>
-    );
-  }
-
   return (
     <Tabs.Panel value="privacy">
       <Paper shadow="xs" p="md" radius="md" withBorder>
-        <form onSubmit={privacyForm.onSubmit((values) => console.log(values))}>
+        <form 
+          onSubmit={(e) => {
+            e.preventDefault();
+            const updateUser: UserData = {
+              name: currentUser.name,
+              username: currentUser.username,
+              avatar: currentUser.avatar,
+              email: currentUser.email,
+              bio: currentUser.bio,
+              age: currentUser.age,
+              major: currentUser.major,
+              year: currentUser.year,
+              interests: currentUser.interests,
+              photos: currentUser.photos,
+              dpAgeRange: currentUser.dpAgeRange,
+              dpDistance: currentUser.dpDistance,
+              dpShowMe: currentUser.dpShowMe,
+              dpInterests: currentUser.dpInterests,
+              dpMajors: currentUser.dpMajors,
+              notiNewMatches: currentUser.notiNewMatches,
+              notiMessages: currentUser.notiMessages,
+              notiAppUpdates: currentUser.notiAppUpdates,
+              notiEmailNotifications: currentUser.notiEmailNotifications,
+              priProfileVisibility: privacyForm.values.profileVisibility,
+              priShowOnlineStatus: privacyForm.values.showOnlineStatus,
+              priShowLastActive: privacyForm.values.showLastActive,
+              priAllowTagging: privacyForm.values.allowTagging,
+            };
+            SendData({ updateUser });
+          }}
+        >
           <Title order={4} mb="md">
             Privacy Settings
           </Title>
@@ -145,7 +129,7 @@ const PrivacySettings = ({ currentUser }: { currentUser: UserData }) => {
           </Stack>
 
           <Group justify="flex-end" mt="xl">
-            <Submit />
+            <Button type="submit">Save Changes</Button>
           </Group>
         </form>
       </Paper>

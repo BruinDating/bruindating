@@ -72,7 +72,7 @@ const NavBar = () => {
           fullWidth
           color="gray"
           variant="transparent"
-          size="xl"
+          size="lg"
           leftSection={<Avatar src={user?.profile_picture} radius="xl" />}
           rightSection={<IconArrowRight />}
           component={Link}

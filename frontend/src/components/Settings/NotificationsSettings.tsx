@@ -23,57 +23,39 @@ const NotificationSettings = ({ currentUser }: { currentUser: UserData }) => {
     },
   });
 
-  //============//
-  //== submit ==//
-  //============//
-  function Submit() {
-    function buttonHandle() {
-      // create data set to send back
-      const updateUser: UserData = {
-        name: currentUser.name,
-        username: currentUser.username,
-        avatar: currentUser.avatar,
-        email: currentUser.email,
-        bio: currentUser.bio,
-        age: currentUser.age,
-        major: currentUser.major,
-        year: currentUser.year,
-        interests: currentUser.interests,
-
-        photos: currentUser.photos,
-
-        dpAgeRange: currentUser.dpAgeRange,
-        dpDistance: currentUser.dpDistance,
-        dpShowMe: currentUser.dpShowMe,
-        dpInterests: currentUser.dpInterests,
-        dpMajors: currentUser.dpMajors,
-
-        notiNewMatches: notificationForm.values.newMatches,
-        notiMessages: notificationForm.values.messages,
-        notiAppUpdates: notificationForm.values.appUpdates,
-        notiEmailNotifications: notificationForm.values.emailNotifications,
-
-        priProfileVisibility: currentUser.priProfileVisibility,
-        priShowOnlineStatus: currentUser.priShowOnlineStatus,
-        priShowLastActive: currentUser.priShowLastActive,
-        priAllowTagging: currentUser.priAllowTagging,
-      };
-
-      //== send updateUse variable back to database ==//
-      SendData({ updateUser });
-    }
-    return (
-      <Button type="submit" onClick={buttonHandle}>
-        Save Changes
-      </Button>
-    );
-  }
-
   return (
     <Tabs.Panel value="notifications">
       <Paper shadow="xs" p="md" radius="md" withBorder>
         <form
-          onSubmit={notificationForm.onSubmit((values) => console.log(values))}
+          onSubmit={(e) => {
+            e.preventDefault();
+            const updateUser: UserData = {
+              name: currentUser.name,
+              username: currentUser.username,
+              avatar: currentUser.avatar,
+              email: currentUser.email,
+              bio: currentUser.bio,
+              age: currentUser.age,
+              major: currentUser.major,
+              year: currentUser.year,
+              interests: currentUser.interests,
+              photos: currentUser.photos,
+              dpAgeRange: currentUser.dpAgeRange,
+              dpDistance: currentUser.dpDistance,
+              dpShowMe: currentUser.dpShowMe,
+              dpInterests: currentUser.dpInterests,
+              dpMajors: currentUser.dpMajors,
+              notiNewMatches: notificationForm.values.newMatches,
+              notiMessages: notificationForm.values.messages,
+              notiAppUpdates: notificationForm.values.appUpdates,
+              notiEmailNotifications: notificationForm.values.emailNotifications,
+              priProfileVisibility: currentUser.priProfileVisibility,
+              priShowOnlineStatus: currentUser.priShowOnlineStatus,
+              priShowLastActive: currentUser.priShowLastActive,
+              priAllowTagging: currentUser.priAllowTagging,
+            };
+            SendData({ updateUser });
+          }}
         >
           <Title order={4} mb="md">
             Notification Settings
@@ -144,7 +126,7 @@ const NotificationSettings = ({ currentUser }: { currentUser: UserData }) => {
           </Stack>
 
           <Group justify="flex-end" mt="xl">
-            <Submit />
+            <Button type="submit">Save Changes</Button>
           </Group>
         </form>
       </Paper>
