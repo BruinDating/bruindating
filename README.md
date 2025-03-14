@@ -1,4 +1,4 @@
-# Bruin Dating Backend
+# Bruin Dating
 
 Bruin Dating is a web application designed and built for students at UCLA. Through the application you are able to connect with your fellow bruins, and make friendships and maybe even meet the love of your life. This repository only contains the details for the backend of the application. 
 
@@ -17,8 +17,8 @@ Bruin Dating is a web application designed and built for students at UCLA. Throu
 #### Clone the repository
 
 ```bash
-git clone https://github.com/BruinDating/bruindating-backend.git
-cd bruindating-frontend
+git clone https://github.com/BruinDating/bruindating.git
+cd bruindating
 ```
 
 #### Set up frontend
@@ -48,7 +48,7 @@ The application will now be available at [http://localhost:3000](http://localhos
 1. **Go into backend repository**
 
 ```bash
-cd backend  # if in the frontend repository use cd ../backend
+cd backend  # if in the frontend repository use `cd ../backend`
 ```
 
 2. **Set up a virtual environment**
