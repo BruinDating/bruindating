@@ -10,7 +10,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db import transaction
-from profiles.models import Profile, Settings
 
 UCLA_EMAIL_DOMAINS = ["@ucla.edu", "@g.ucla.edu"]
 
@@ -20,7 +19,11 @@ UCLA_EMAIL_DOMAINS = ["@ucla.edu", "@g.ucla.edu"]
 def google_login(request):
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         settings.GOOGLE_OAUTH_CLIENT_SECRETS_FILE,
-        scopes=["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile", "openid"],
+        scopes=[
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "openid",
+        ],
     )
 
     redirect_uri = f"{settings.BACKEND_URL}/auth/callback"
@@ -51,7 +54,11 @@ def google_callback(request):
 
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         settings.GOOGLE_OAUTH_CLIENT_SECRETS_FILE,
-        scopes=["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile", "openid"],
+        scopes=[
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "openid",
+        ],
         state=state,
     )
 
@@ -76,7 +83,13 @@ def google_callback(request):
     is_ucla_email = any(domain in email for domain in UCLA_EMAIL_DOMAINS)
 
     if not is_ucla_email:
-        return JsonResponse({"error": "You must use a UCLA email address to sign in", "provided_email": email}, status=403)
+        return JsonResponse(
+            {
+                "error": "You must use a UCLA email address to sign in",
+                "provided_email": email,
+            },
+            status=403,
+        )
 
     from django.contrib.auth import get_user_model
 
@@ -107,9 +120,6 @@ def google_callback(request):
                 profile_picture=user_data.get("picture"),
                 is_ucla_verified=True,
             )
-
-            # Profile.objects.create(user=user)
-            # Settings.objects.create(user=user)
 
     refresh = RefreshToken.for_user(user)
     tokens = {
@@ -148,6 +158,16 @@ def user_info(request):
 
 @api_view(["POST"])
 def token_refresh(request):
-    from rest_framework_simplejwt.views import TokenRefreshView
+    try:
+        from rest_framework_simplejwt.views import TokenRefreshView
+        from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 
-    return TokenRefreshView.as_view()(request)
+        try:
+            response = TokenRefreshView.as_view()(request)
+            return response
+        except TokenError as e:
+            return Response({"error": "Invalid token", "detail": str(e)}, status=401)
+        except InvalidToken as e:
+            return Response({"error": "Invalid token", "detail": str(e)}, status=401)
+    except Exception as e:
+        return Response({"error": "Server error", "detail": str(e)}, status=500)

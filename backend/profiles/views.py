@@ -3,8 +3,6 @@ from rest_framework.response import Response
 from .models import Profile, Settings
 from .serializers import ProfileSerializer, SettingsSerializer
 
-# Create your views here.
-
 
 class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
@@ -17,23 +15,42 @@ class ProfileViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def list(self, request):
-        profile, created = Profile.objects.get_or_create(user=request.user)
-        serializer = self.get_serializer(profile)
-        return Response(serializer.data)
+        try:
+            profile, created = Profile.objects.get_or_create(
+                user=request.user,
+                defaults={
+                    "age": 18,
+                },
+            )
+            serializer = self.get_serializer(profile)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": "Failed to retrieve profile", "detail": str(e)}, status=500)
 
     def create(self, request):
-        profile, created = Profile.objects.get_or_create(user=request.user)
-        serializer = self.get_serializer(profile, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+        try:
+            profile, created = Profile.objects.get_or_create(
+                user=request.user,
+                defaults={
+                    "age": 18,
+                },
+            )
+            serializer = self.get_serializer(profile, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": "Failed to create profile", "detail": str(e)}, status=500)
 
     def update(self, request, pk=None):
-        profile = self.get_object()
-        serializer = self.get_serializer(profile, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+        try:
+            profile = self.get_object()
+            serializer = self.get_serializer(profile, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": "Failed to update profile", "detail": str(e)}, status=500)
 
 
 class SettingsViewSet(viewsets.ModelViewSet):

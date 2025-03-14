@@ -23,7 +23,10 @@ const ChatPage = () => {
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [chatUser, setChatUser] = useState({ name: "", avatar: null });
+  const [chatUser, setChatUser] = useState<{ name: string; avatar: string | null }>({ 
+    name: "", 
+    avatar: null 
+  });
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
 

@@ -1,4 +1,5 @@
 "use client";
+import { AuthContextType, User } from "@/types/types";
 import { useRouter } from "next/navigation";
 import {
   createContext,
@@ -7,25 +8,6 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  profile_picture: string | null;
-  is_ucla_verified: boolean;
-}
-
-interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  login: () => Promise<void>;
-  logout: () => Promise<void>;
-  refreshToken: () => Promise<boolean>;
-}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -48,169 +30,178 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const router = useRouter();
 
   const getUserInfo = async () => {
-    try {
-      const accessToken = localStorage.getItem("access_token");
+    const accessToken = localStorage.getItem("access_token");
 
-      if (!accessToken) {
-        setIsLoading(false);
-        return;
+    if (!accessToken) {
+      setIsLoading(false);
+      return;
+    }
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/user/`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
       }
+    ).catch(() => null);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/user/`,
+    if (response?.ok) {
+      const userData = await response.json();
+      setUser(userData);
+      setIsAuthenticated(true);
+
+      const profileResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profiles/`,
         {
-          method: "GET",
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
         }
-      );
+      ).catch(() => null);
 
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        setIsAuthenticated(true);
+      if (profileResponse?.ok) {
+        const profileData = await profileResponse.json();
+        
+        const profileExists = profileData && profileData.email === userData.email;
+        const isProfileComplete = profileExists &&
+          profileData.major &&
+          profileData.year &&
+          profileData.age &&
+          profileData.gender &&
+          profileData.interests &&
+          profileData.interests.length > 0;
 
-        // After setting user data, check if they have a profile
-        const profileResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/profiles/`,
+        if (profileExists && isProfileComplete) {
+          router.push(`/${userData.username}/home`);
+        } else {
+          router.push("/questionnaire");
+        }
+      } else {
+        router.push("/questionnaire");
+      }
+    } else if (response?.status === 401) {
+      const refreshed = await refreshToken();
+      
+      if (refreshed) {
+        const newAccessToken = localStorage.getItem("access_token");
+        const retryResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/user/`,
           {
+            method: "GET",
             headers: {
-              Authorization: `Bearer ${accessToken}`,
+              Authorization: `Bearer ${newAccessToken}`,
               "Content-Type": "application/json",
             },
           }
-        );
+        ).catch(() => null);
 
-        if (profileResponse.ok) {
-          const profiles = await profileResponse.json();
-          const hasProfile = profiles.some(
-            (profile: any) => profile.email === userData.email
-          );
-
-          if (!hasProfile) {
-            router.push('/questionnaire');
-          } else {
-            router.push(`/${userData.username}/home`);
-          }
+        if (retryResponse?.ok) {
+          const userData = await retryResponse.json();
+          setUser(userData);
+          setIsAuthenticated(true);
         } else {
-          // If we can't check profiles, default to questionnaire
-          router.push('/questionnaire');
+          handleTokenFailure();
         }
       } else {
-        const refreshed = await refreshToken();
-        if (!refreshed) {
-          const isIntentionalLogout =
-            localStorage.getItem("intentional_logout") === "true";
-          if (isIntentionalLogout) {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-            setUser(null);
-            setIsAuthenticated(false);
-          }
-        }
+        handleTokenFailure();
       }
-    } catch (error) {
-      console.error("Error fetching user info:", error);
-    } finally {
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
+  };
+
+  const handleTokenFailure = () => {
+    const isIntentionalLogout = localStorage.getItem("intentional_logout") === "true";
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   const refreshToken = async (): Promise<boolean> => {
-    try {
-      const refreshToken = localStorage.getItem("refresh_token");
-
-      if (!refreshToken) {
-        return false;
-      }
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/token/refresh/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ refresh: refreshToken }),
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("access_token", data.access);
-        await getUserInfo();
-        return true;
-      }
-
+    const refreshToken = localStorage.getItem("refresh_token");
+    
+    if (!refreshToken) {
       return false;
-    } catch (error) {
-      console.error("Error refreshing token:", error);
+    }
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/token/refresh/`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refresh: refreshToken }),
+      }
+    ).catch(() => null);
+
+    if (response?.ok) {
+      const data = await response.json();
+      localStorage.setItem("access_token", data.access);
+      return true;
+    } else {
+      if (response?.status === 401 || response?.status === 400) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+      }
       return false;
     }
   };
 
   const login = async () => {
-    try {
-      setIsLoading(true);
+    setIsLoading(true);
+    
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login/`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    ).catch(() => null);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login/`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+    if (response?.ok) {
       const data = await response.json();
-
       if (data.auth_url) {
         router.push(data.auth_url);
-      } else {
-        console.error("Failed to get auth URL");
-        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error initiating login:", error);
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
   };
 
   const logout = async () => {
-    try {
-      setIsLoading(true);
+    setIsLoading(true);
+    localStorage.setItem("intentional_logout", "true");
+    
+    setUser(null);
+    setIsAuthenticated(false);
 
-      localStorage.setItem("intentional_logout", "true");
-
-      setUser(null);
-      setIsAuthenticated(false);
-
-      const accessToken = localStorage.getItem("access_token");
-      if (accessToken) {
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout/`, {
+    const accessToken = localStorage.getItem("access_token");
+    if (accessToken) {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout/`,
+        {
           method: "POST",
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-        }).catch((error) => {
-          console.error("Error during logout API call:", error);
-        });
-      }
-
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-
-      router.replace("/");
-    } catch (error) {
-      console.error("Error logging out:", error);
-    } finally {
-      setIsLoading(false);
+        }
+      ).catch(() => null);
     }
+
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    router.replace("/");
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -224,7 +215,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     checkAuth();
 
     const refreshInterval = setInterval(() => {
-      refreshToken();
+      refreshToken().then((refreshed) => {
+        if (refreshed) {
+          getUserInfo();
+        }
+      });
     }, 15 * 60 * 1000);
 
     return () => clearInterval(refreshInterval);

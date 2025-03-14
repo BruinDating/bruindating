@@ -3,11 +3,13 @@ from auth_app.models import UCLAUser
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(UCLAUser, on_delete=models.CASCADE, related_name="profile")
+    user = models.OneToOneField(
+        UCLAUser, on_delete=models.CASCADE, related_name="profile"
+    )
     bio = models.TextField(blank=True)
     major = models.CharField(max_length=100, blank=True)
     year = models.CharField(max_length=20, blank=True)
-    age = models.PositiveSmallIntegerField()
+    age = models.PositiveSmallIntegerField(default=18, null=True, blank=True)
     interests = models.JSONField(default=list, blank=True)
     photos = models.JSONField(default=list, blank=True)
     location = models.CharField(max_length=100, blank=True)
@@ -21,7 +23,9 @@ class Profile(models.Model):
 
 
 class Settings(models.Model):
-    user = models.OneToOneField(UCLAUser, on_delete=models.CASCADE, related_name="settings")
+    user = models.OneToOneField(
+        UCLAUser, on_delete=models.CASCADE, related_name="settings"
+    )
     email_notifications = models.BooleanField(default=True)
     match_notifications = models.BooleanField(default=True)
     message_notifications = models.BooleanField(default=True)

@@ -117,3 +117,80 @@ export interface SwipingCarouselProps {
 export interface ExtendedMatchData extends MatchData {
   id: number;
 }
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  profile_picture: string | null;
+  is_ucla_verified: boolean;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
+  refreshToken: () => Promise<boolean>;
+}
+
+export interface ProfileType {
+  id: number;
+  email: string;
+  name?: string;
+  bio: string;
+  major: string;
+  year: string;
+  age: number;
+  interests: string[];
+  photos: string[];
+  location: string;
+  gender: string;
+  gender_preference: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiMatchData {
+  id?: number;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  profile_picture?: string | null;
+  profile?: {
+    bio?: string;
+    age?: number;
+    major?: string;
+    year?: string;
+    interests?: string[];
+    photos?: string[];
+    match_percentage?: number;
+    last_active?: string;
+  };
+}
+
+export interface ChatRoom {
+  id: string;
+  name: string;
+  participants: {
+    id: number;
+    username: string;
+    profile_picture: string | null;
+  }[];
+  last_message: {
+    content: string;
+    timestamp: string;
+  } | null;
+}
+
+export interface ApiMessage {
+  id: number;
+  content: string;
+  sender: {
+    email: string;
+  };
+  timestamp: string;
+}
