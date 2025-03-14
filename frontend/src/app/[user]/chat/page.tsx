@@ -5,23 +5,13 @@ import ChatBox from "@/components/Chat/ChatBox";
 import { Stack, Loader, Center, Text } from "@mantine/core";
 import { fetchChatRooms } from "@/services/api";
 import { useAuth } from "@/components/Auth/AuthContext";
-
-interface ChatRoom {
-  id: string;
-  name: string;
-  participants: {
-    id: number;
-    username: string;
-    profile_picture: string | null;
-  }[];
-  last_message: {
-    content: string;
-    timestamp: string;
-  } | null;
-}
+import { useParams } from "next/navigation";
+import { ChatRoom } from "@/types/types";
 
 const Chat = () => {
   const { isAuthenticated } = useAuth();
+  const params = useParams();
+  const currentUser = params.user as string;
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +65,11 @@ const Chat = () => {
   return (
     <Stack p="xl">
       {chatRooms.map((room) => {
-        const otherParticipant = room.participants[0];
+        // Find the other participant (not the current user)
+        const otherParticipant = room.participants.find(
+          (p) => p.username !== currentUser
+        ) || room.participants[0];
+
         return (
           <ChatBox
             key={room.id}

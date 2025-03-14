@@ -1,21 +1,35 @@
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from .models import Profile, Settings
 from .serializers import ProfileSerializer, SettingsSerializer
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
-        return Profile.objects.filter(user=self.request.user)
+        if self.request.user.is_authenticated:
+            return Profile.objects.filter(user=self.request.user)
+        return Profile.objects.all()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
     def list(self, request):
         try:
+            if request.user.is_authenticated:
+                profile, created = Profile.objects.get_or_create(
+                    user=request.user,
+                    defaults={
+                        "age": 18,
+                    },
+                )
+                serializer = self.get_serializer(profile)
+            else:
+                profiles = Profile.objects.all()
+                serializer = self.get_serializer(profiles, many=True)
             profile, created = Profile.objects.get_or_create(
                 user=request.user,
                 defaults={
@@ -29,6 +43,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         try:
+            if not request.user.is_authenticated:
+                return Response({"error": "Must be authenticated to create a profile"}, status=401)
             profile, created = Profile.objects.get_or_create(
                 user=request.user,
                 defaults={

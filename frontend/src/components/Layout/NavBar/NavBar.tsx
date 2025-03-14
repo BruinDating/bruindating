@@ -78,7 +78,7 @@ const NavBar = () => {
           component={Link}
           href={`/${username}/profile`}
         >
-          Burak Arslan
+          {user ? `${user.first_name} ${user.last_name}` : username}
         </Button>
       </div>
     </Stack>

@@ -5,9 +5,11 @@ from profiles.serializers import ProfileSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(read_only=True)
+    
     class Meta:
         model = UCLAUser
-        fields = ["id", "email", "first_name", "last_name", "profile_picture"]
+        fields = ["id", "email", "first_name", "last_name", "profile_picture", "profile"]
 
 
 class MatchSerializer(serializers.ModelSerializer):

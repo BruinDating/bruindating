@@ -6,24 +6,69 @@ import { MatchCardProps } from "@/types/types";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { likeProfile } from "@/services/api";
+import { likeProfile, createChatRoom } from "@/services/api";
 import { useState } from "react";
+import { notifications } from '@mantine/notifications';
 
-const MatchCard = ({ match, isPotential = false }: MatchCardProps) => {
+const DEFAULT_PROFILE_IMAGE = "https://i.imgur.com/HeIi0wU.png";
+
+const MatchCard = ({ match, isPotential = false, onMatchSuccess }: MatchCardProps) => {
   const params = useParams();
   const user = params.user as string;
   const [isLiking, setIsLiking] = useState(false);
+  const [chatRoomId, setChatRoomId] = useState<string | null>(null);
+  const [isCreatingChatRoom, setIsCreatingChatRoom] = useState(false);
 
   const handleLike = async () => {
     try {
       setIsLiking(true);
       const accessToken = localStorage.getItem("access_token");
-      await likeProfile(match.id.toString(), accessToken);
-      // You might want to refresh the matches list or show a success message
+      const response = await likeProfile(match.id.toString(), accessToken);
+      if (response.is_match && onMatchSuccess) {
+        notifications.show({
+          title: 'Match!',
+          message: response.message,
+          color: 'green',
+        });
+        onMatchSuccess();
+      } else {
+        notifications.show({
+          title: 'Success',
+          message: response.message,
+          color: 'blue',
+        });
+      }
     } catch (error) {
       console.error("Error liking profile:", error);
+      notifications.show({
+        title: 'Error',
+        message: error instanceof Error ? error.message : 'Failed to like profile',
+        color: 'red',
+      });
     } finally {
       setIsLiking(false);
+    }
+  };
+
+  const handleCreateChatRoom = async () => {
+    if (chatRoomId) return chatRoomId;
+    
+    try {
+      setIsCreatingChatRoom(true);
+      const accessToken = localStorage.getItem("access_token");
+      const roomId = await createChatRoom(match.id.toString(), accessToken);
+      setChatRoomId(roomId);
+      return roomId;
+    } catch (error) {
+      console.error("Error creating chat room:", error);
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to create chat room',
+        color: 'red',
+      });
+      return null;
+    } finally {
+      setIsCreatingChatRoom(false);
     }
   };
 
@@ -31,17 +76,18 @@ const MatchCard = ({ match, isPotential = false }: MatchCardProps) => {
     <Card shadow="sm" padding="lg" radius="md" withBorder>
       <Card.Section>
         <Image
-          src={match.photos[0]}
+          src={match.photos?.[0] || DEFAULT_PROFILE_IMAGE}
           alt={match.name}
           width={300}
           height={300}
+          style={{ objectFit: "cover" }}
         />
       </Card.Section>
 
       <Group justify="space-between" mt="md" mb="xs">
         <Group>
           <Avatar
-            src={match.avatar && match.avatar !== "" ? match.avatar : null}
+            src={match.avatar && match.avatar !== "" ? match.avatar : DEFAULT_PROFILE_IMAGE}
             size="md"
             radius="xl"
           />
@@ -95,7 +141,17 @@ const MatchCard = ({ match, isPotential = false }: MatchCardProps) => {
             variant="light"
             fullWidth
             component={Link}
-            href={`/${user}/chat/${match.username}`}
+            href={`/${user}/chat/${chatRoomId || ''}`}
+            onClick={async (e) => {
+              if (!chatRoomId) {
+                e.preventDefault();
+                const newRoomId = await handleCreateChatRoom();
+                if (newRoomId) {
+                  window.location.href = `/${user}/chat/${newRoomId}`;
+                }
+              }
+            }}
+            loading={isCreatingChatRoom}
           >
             Message
           </Button>

@@ -83,6 +83,7 @@ export interface MatchData extends UserData {
 export interface MatchCardProps {
   match: MatchData;
   isPotential?: boolean;
+  onMatchSuccess?: () => void;
 }
 
 export interface SortOption {
@@ -193,4 +194,3 @@ export interface ApiMessage {
     email: string;
   };
   timestamp: string;
-}

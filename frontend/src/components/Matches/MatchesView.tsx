@@ -8,9 +8,11 @@ import MatchCard from "./MatchCard";
 const MatchesView = ({
   data,
   isPotential = false,
+  onMatchSuccess,
 }: {
   data: MatchData[];
   isPotential?: boolean;
+  onMatchSuccess?: () => void;
 }) => {
   const [sortBy, setSortBy] = useState<string | null>("name");
 
@@ -56,7 +58,7 @@ const MatchesView = ({
       <SimpleGrid cols={4} spacing="xl">
         {isPotential
           ? sortedMatches.map((match) => (
-              <MatchCard key={match.username} match={match} isPotential />
+              <MatchCard key={match.username} match={match} isPotential onMatchSuccess={onMatchSuccess} />
             ))
           : sortedMatches.map((match) => (
               <MatchCard key={match.username} match={match} />

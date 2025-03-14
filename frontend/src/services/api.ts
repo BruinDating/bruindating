@@ -199,7 +199,7 @@ export const fetchCurrentMatches = async (
       throw new Error("No access token found");
     }
 
-    const response = await fetch(`${API_URL}/matching/matches/`, {
+    const response = await fetch(`${API_URL}/matching/matches/matches/`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -215,6 +215,7 @@ export const fetchCurrentMatches = async (
     }
 
     const data = await response.json();
+    console.log('Current matches response:', data);
     const filteredData = data.filter((match: ApiMatchData) => match?.email);
 
     return filteredData.map((match: ApiMatchData): MatchData => {
@@ -264,30 +265,27 @@ export const fetchCurrentMatches = async (
 export const likeProfile = async (
   userId: string,
   accessToken: string | null
-): Promise<void> => {
-  try {
-    if (!accessToken) {
-      throw new Error("No access token found");
-    }
-
-    const response = await fetch(
-      `${API_URL}/matching/matches/${userId}/like/`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to like profile: ${response.statusText}`);
-    }
-  } catch (error) {
-    console.error("Error liking profile:", error);
-    throw error;
+): Promise<{ status: string; is_match: boolean; message: string }> => {
+  if (!accessToken) {
+    throw new Error("No access token found");
   }
+
+  const response = await fetch(`${API_URL}/matching/matches/${userId}/like/`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
+  console.log('Like response:', { status: response.status, data });
+
+  if (!response.ok) {
+    throw new Error(data.error || `Failed to like profile: ${response.statusText}`);
+  }
+
+  return data;
 };
 
 export const dislikeProfile = async (
@@ -464,34 +462,27 @@ export const sendChatMessage = async (
   }
 };
 
-export const createChatRoom = async (
-  participantId: string,
-  accessToken: string | null
-): Promise<string> => {
-  try {
-    if (!accessToken) {
-      throw new Error("No access token found");
-    }
-
-    const response = await fetch(`${API_URL}/chat/rooms/`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ participant_id: participantId }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to create chat room: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data.id;
-  } catch (error) {
-    console.error("Error creating chat room:", error);
-    throw error;
+export const createChatRoom = async (targetUserId: string, accessToken: string | null) => {
+  if (!accessToken) {
+    throw new Error('No access token found');
   }
+
+  const response = await fetch(`${API_URL}/chat/rooms/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ target_user_id: targetUserId }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || 'Failed to create chat room');
+  }
+
+  const data = await response.json();
+  return data.id;
 };
 
 export const submitQuestionnaire = async (
