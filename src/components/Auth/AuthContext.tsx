@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               username: username || DEFAULT_MOCK_USER.username,
               email: email || DEFAULT_MOCK_USER.email,
               first_name: firstName || DEFAULT_MOCK_USER.first_name,
-              last_name: lastName || DEFAULT_MOCK_USER.last_name,
+              last_name: lastName !== null ? lastName : '',
               profile_picture: avatar || DEFAULT_MOCK_USER.profile_picture,
             };
             
@@ -218,7 +218,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               username: username || DEFAULT_MOCK_USER.username,
               email: email || DEFAULT_MOCK_USER.email,
               first_name: firstName || DEFAULT_MOCK_USER.first_name,
-              last_name: lastName || DEFAULT_MOCK_USER.last_name,
+              last_name: lastName !== null ? lastName : '',
               profile_picture: avatar || DEFAULT_MOCK_USER.profile_picture,
             };
             
@@ -319,8 +319,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const updateUser = (userData: Partial<User>, additionalData?: any) => {
     if (!user) return;
     
+    console.log("AuthContext接收到的更新数据:", userData);
+    console.log("AuthContext的用户数据更新前:", user);
+    
     // Merge new data with existing data
     const updatedUser = { ...user, ...userData };
+    console.log("AuthContext的用户数据更新后:", updatedUser);
+    
     setUser(updatedUser);
     
     // For development mode, also update data stored in localStorage
@@ -331,11 +336,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (updatedUser.username) {
           localStorage.setItem('user_username', updatedUser.username);
         }
-        if (updatedUser.first_name) {
-          localStorage.setItem('user_firstName', updatedUser.first_name);
+        if (updatedUser.first_name !== undefined) {
+          localStorage.setItem('user_firstName', updatedUser.first_name || '');
         }
-        if (updatedUser.last_name) {
-          localStorage.setItem('user_lastName', updatedUser.last_name);
+        if (updatedUser.last_name !== undefined) {
+          localStorage.setItem('user_lastName', updatedUser.last_name || '');
         }
         if (updatedUser.email) {
           localStorage.setItem('user_email', updatedUser.email);
@@ -373,8 +378,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         profileData = {
           ...profileData,
           username: updatedUser.username,
-          firstName: updatedUser.first_name,
-          lastName: updatedUser.last_name,
+          firstName: updatedUser.first_name || '',
+          lastName: updatedUser.last_name === undefined ? '' : (updatedUser.last_name || ''),
           avatar: updatedUser.profile_picture,
           email: updatedUser.email
         };

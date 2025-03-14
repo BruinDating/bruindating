@@ -17,6 +17,8 @@ const NavBar = () => {
   const params = useParams();
   const username = params.user as string;
   const { user } = useAuth();
+  
+  console.log("NavBar接收到的用户数据:", user);
 
   return (
     <Stack h="100%" justify="space-between">
@@ -78,7 +80,7 @@ const NavBar = () => {
           component={Link}
           href={`/${username}/profile`}
         >
-          {user ? `${user.first_name} ${user.last_name}` : 'User Profile'}
+          {user ? `${user.first_name}${user.last_name && user.last_name.trim() !== '' ? ' ' + user.last_name : ''}` : 'User Profile'}
         </Button>
       </div>
     </Stack>

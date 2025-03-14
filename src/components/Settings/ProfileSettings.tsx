@@ -128,7 +128,6 @@ export default function ProfileSettings({
     }
     
     const fetchUserData = async () => {
-      console.log("Fetching user data, userID:", userId);
       setLoading(true);
       setError(null);
 
@@ -140,8 +139,6 @@ export default function ProfileSettings({
         const profileData = await fetchProfileData({ accessToken: token });
         
         if (profileData) {
-          console.log("Successfully fetched user data:", profileData);
-          
           // Set user data to state
           setUserData({
             id: userId,
@@ -155,14 +152,13 @@ export default function ProfileSettings({
             year: profileData.year || "",
             age: profileData.age || 18,
             interests: profileData.interests || [],
-            firstName: profileData.firstName,
-            lastName: profileData.lastName,
+            firstName: profileData.firstName || "",
+            lastName: profileData.lastName || "",
             avatar: profileData.avatar || "",
             photos: profileData.photos || [],
           });
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
         setError(error instanceof Error ? error.message : "Failed to fetch user data");
         
         // Set default data
@@ -176,6 +172,8 @@ export default function ProfileSettings({
           year: "",
           age: 18,
           interests: [],
+          firstName: "User",
+          lastName: "",
           profile_visibility: "public",
           max_distance: 50,
           age_min: 18,
@@ -279,6 +277,8 @@ function ProfileSettingsClient({
       interests: userData.interests || [],
       email: userData.email || "",
       username: userData.username || "",
+      firstName: userData.firstName || "",
+      lastName: userData.lastName || "",
     },
   });
 
@@ -425,16 +425,14 @@ function ProfileSettingsClient({
         age: values.age || 18,
         interests: values.interests || [],
         // Preserve other fields
-        firstName: values.name?.split(" ")[0] || userData.firstName,
-        lastName: values.name?.split(" ").slice(1).join(" ") || userData.lastName,
+        firstName: values.name?.split(" ")[0] || "",
+        lastName: values.name?.includes(" ") ? values.name?.split(" ").slice(1).join(" ") : "",
         avatar: avatar, // Now avatar stores base64 string
         photos: userData.photos || [],
         location: userData.location || "",
         gender: userData.gender || "",
         genderPreference: userData.genderPreference || [],
       };
-      
-      console.log("Saving user data:", updatedUserData);
       
       // Update user profile using the API function
       await updateUserProfile(updatedUserData, token);
@@ -464,7 +462,6 @@ function ProfileSettingsClient({
       );
       
     } catch (error) {
-      console.error("Error saving settings:", error);
       setSubmitError(error instanceof Error ? error.message : "Failed to save settings, please try again");
     } finally {
       setIsSubmitting(false);

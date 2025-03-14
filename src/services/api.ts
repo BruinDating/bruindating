@@ -247,7 +247,7 @@ const DEFAULT_MOCK_USER_PROFILE: profileDataProps = {
   avatar: "https://placehold.co/200",
   username: "dev_user",
   firstName: "Development",
-  lastName: "User",
+  lastName: "",
   age: 21,
   bio: "This is a mock bio for development testing purposes.",
   major: "Computer Science",
@@ -266,11 +266,10 @@ const cleanStoredData = () => {
     // Check if avatar is a Blob URL
     const avatar = localStorage.getItem('user_avatar');
     if (avatar && avatar.startsWith('blob:')) {
-      console.log("[DEV MODE] Detected invalid Blob URL, replacing with default avatar");
       localStorage.setItem('user_avatar', DEFAULT_MOCK_USER_PROFILE.avatar);
     }
   } catch (error) {
-    console.error("[DEV MODE] Error cleaning data:", error);
+    // Error handling silently
   }
 };
 
@@ -291,18 +290,14 @@ export const fetchProfileData = async ({
     
     // Check if using mock authentication
     if (isUsingMockAuth(accessToken)) {
-      console.log("[DEV MODE] Fetching user profile");
-      
       // 1. First try to get data from fragmented storage
       const username = localStorage.getItem('user_username');
       if (username) {
-        console.log("[DEV MODE] Getting user profile from fragmented storage");
-        
         try {
           const userData: profileDataProps = {
             username: localStorage.getItem('user_username') || 'dev_user',
             firstName: localStorage.getItem('user_firstName') || 'Development',
-            lastName: localStorage.getItem('user_lastName') || 'User',
+            lastName: localStorage.getItem('user_lastName') || '',
             email: localStorage.getItem('user_email') || 'dev@g.ucla.edu',
             bio: localStorage.getItem('user_bio') || '',
             age: Number(localStorage.getItem('user_age')) || 21,
@@ -323,7 +318,7 @@ export const fetchProfileData = async ({
               userData.interests = JSON.parse(interestsStr);
             }
           } catch (error) {
-            console.error("Failed to parse interests data:", error);
+            // Silent error handling
           }
           
           try {
@@ -332,7 +327,7 @@ export const fetchProfileData = async ({
               userData.genderPreference = JSON.parse(genderPrefStr);
             }
           } catch (error) {
-            console.error("Failed to parse gender preference data:", error);
+            // Silent error handling
           }
           
           try {
@@ -346,33 +341,27 @@ export const fetchProfileData = async ({
               }
             }
           } catch (error) {
-            console.error("Failed to parse photos data:", error);
+            // Silent error handling
           }
-          
-          console.log("[DEV MODE] Loaded user profile from fragmented storage:", userData);
           
           return userData;
         } catch (error) {
-          console.error("[DEV MODE] Failed to get user profile from fragmented storage:", error);
+          // Silent error handling
         }
       }
       
       // 2. If no data in fragmented storage, try from mockUserProfile
       const savedUserData = localStorage.getItem('mockUserProfile');
       if (savedUserData) {
-        console.log("[DEV MODE] Getting user profile from mockUserProfile");
         try {
           const parsedData = JSON.parse(savedUserData);
-          console.log("[DEV MODE] Parsed user profile:", parsedData);
-          
           return parsedData;
         } catch (parseError) {
-          console.error("[DEV MODE] Failed to parse mockUserProfile:", parseError);
+          // Silent error handling
         }
       }
       
       // 3. If none, use default mock data
-      console.log("[DEV MODE] No saved user profile found, using default data");
       return DEFAULT_MOCK_USER_PROFILE;
     }
 
@@ -414,7 +403,6 @@ export const fetchProfileData = async ({
       genderPreference: profileData?.gender_preference || [],
     };
   } catch (error) {
-    console.error("Error fetching user profile:", error);
     throw error;
   }
 };
@@ -430,16 +418,10 @@ export const updateUserProfile = async (
 
     // Check if using mock authentication
     if (isUsingMockAuth(accessToken)) {
-      console.log("[DEV MODE] Saving user profile");
-      
       // Get current stored data or use default
       const currentData = localStorage.getItem('mockUserProfile') 
         ? JSON.parse(localStorage.getItem('mockUserProfile') || '{}')
         : DEFAULT_MOCK_USER_PROFILE;
-      
-      // Ensure we have all necessary fields
-      console.log("[DEV MODE] Current saved data:", currentData);
-      console.log("[DEV MODE] New data:", userData);
       
       // Merge new data, ensure all fields exist
       const updatedData = {
@@ -466,19 +448,14 @@ export const updateUserProfile = async (
       // 1. Try to save to localStorage (mockUserProfile)
       try {
         localStorage.setItem('mockUserProfile', JSON.stringify(updatedData));
-        console.log("[DEV MODE] User profile saved to mockUserProfile");
       } catch (error) {
-        console.error("Unable to save complete user profile, trying without photos:", error);
-        
         // If complete save fails, try without photos
         const minimalData = {...updatedData};
         minimalData.photos = [];
         
         try {
           localStorage.setItem('mockUserProfile', JSON.stringify(minimalData));
-          console.log("[DEV MODE] Minimal user profile saved to mockUserProfile (without photos)");
         } catch (storageError) {
-          console.error("Cannot save user profile even without photos:", storageError);
           throw new Error("Storage limit exceeded, cannot save user profile");
         }
       }
@@ -509,10 +486,8 @@ export const updateUserProfile = async (
           // Store photos directly without conversion to references
           localStorage.setItem('user_photos', JSON.stringify(updatedData.photos));
         }
-        
-        console.log("[DEV MODE] User profile saved to fragmented storage");
       } catch (error) {
-        console.error("Failed to save user profile to fragmented storage:", error);
+        // Silent error handling
       }
       
       return updatedData;
@@ -543,7 +518,6 @@ export const updateUserProfile = async (
 
     return fetchProfileData({ accessToken });
   } catch (error) {
-    console.error("Error updating user profile:", error);
     throw error;
   }
 };
@@ -559,8 +533,6 @@ export const updateUserSettings = async (
 
     // Check if using mock authentication
     if (isUsingMockAuth(accessToken)) {
-      console.log("[DEV MODE] Saving user settings to localStorage");
-      
       // Get current stored settings or use default
       const currentSettings = localStorage.getItem('mockUserSettings') 
         ? JSON.parse(localStorage.getItem('mockUserSettings') || '{}')
@@ -574,7 +546,6 @@ export const updateUserSettings = async (
       
       // Save to localStorage
       localStorage.setItem('mockUserSettings', JSON.stringify(updatedSettings));
-      console.log("[DEV MODE] User settings saved successfully", updatedSettings);
       
       return;
     }
@@ -601,7 +572,6 @@ export const updateUserSettings = async (
       throw new Error(`Failed to update settings: ${response.statusText}`);
     }
   } catch (error) {
-    console.error("Error updating user settings:", error);
     throw error;
   }
 };
@@ -616,7 +586,6 @@ export const fetchPotentialMatches = async (
     
     // Check if using mock authentication
     if (isUsingMockAuth(accessToken)) {
-      console.log("[DEV MODE] Returning mock potential matches");
       return MOCK_POTENTIAL_MATCHES;
     }
 
@@ -677,7 +646,6 @@ export const fetchPotentialMatches = async (
       };
     });
   } catch (error) {
-    console.error("Error fetching potential matches:", error);
     throw error;
   }
 };
@@ -692,7 +660,6 @@ export const fetchCurrentMatches = async (
     
     // Check if using mock authentication
     if (isUsingMockAuth(accessToken)) {
-      console.log("[DEV MODE] Returning mock current matches");
       return MOCK_CURRENT_MATCHES;
     }
 
@@ -753,7 +720,6 @@ export const fetchCurrentMatches = async (
       };
     });
   } catch (error) {
-    console.error("Error fetching current matches:", error);
     throw error;
   }
 };
@@ -782,7 +748,6 @@ export const likeProfile = async (
       throw new Error(`Failed to like profile: ${response.statusText}`);
     }
   } catch (error) {
-    console.error("Error liking profile:", error);
     throw error;
   }
 };
@@ -811,7 +776,6 @@ export const dislikeProfile = async (
       throw new Error(`Failed to dislike profile: ${response.statusText}`);
     }
   } catch (error) {
-    console.error("Error disliking profile:", error);
     throw error;
   }
 };
@@ -840,7 +804,6 @@ export const superLikeProfile = async (
       throw new Error(`Failed to super like profile: ${response.statusText}`);
     }
   } catch (error) {
-    console.error("Error super liking profile:", error);
     throw error;
   }
 };
@@ -855,7 +818,6 @@ export const fetchChatRooms = async (
     
     // Check if using mock authentication
     if (isUsingMockAuth(accessToken)) {
-      console.log("[DEV MODE] Returning mock chat rooms");
       return MOCK_CHAT_ROOMS;
     }
 
@@ -874,7 +836,6 @@ export const fetchChatRooms = async (
 
     return await response.json();
   } catch (error) {
-    console.error("Error fetching chat rooms:", error);
     throw error;
   }
 };
@@ -890,7 +851,6 @@ export const fetchChatMessages = async (
     
     // Check if using mock authentication
     if (isUsingMockAuth(accessToken)) {
-      console.log("[DEV MODE] Returning mock chat messages for room:", roomId);
       return MOCK_CHAT_MESSAGES[roomId] || [];
     }
 
@@ -915,7 +875,6 @@ export const fetchChatMessages = async (
       timestamp: message.timestamp,
     }));
   } catch (error) {
-    console.error("Error fetching chat messages:", error);
     throw error;
   }
 };
@@ -932,7 +891,6 @@ export const sendChatMessage = async (
     
     // Check if using mock authentication
     if (isUsingMockAuth(accessToken)) {
-      console.log("[DEV MODE] Simulating sending message to room:", roomId);
       // Return simulated sent message
       const mockMessage: Message = {
         id: Date.now(),
@@ -964,7 +922,6 @@ export const sendChatMessage = async (
       timestamp: message.timestamp,
     };
   } catch (error) {
-    console.error("Error sending message:", error);
     throw error;
   }
 };
@@ -994,7 +951,6 @@ export const createChatRoom = async (
     const data = await response.json();
     return data.id;
   } catch (error) {
-    console.error("Error creating chat room:", error);
     throw error;
   }
 };
@@ -1021,7 +977,6 @@ export const submitQuestionnaire = async (
       throw new Error(`Failed to submit questionnaire: ${response.statusText}`);
     }
   } catch (error) {
-    console.error("Error submitting questionnaire:", error);
     throw error;
   }
 };
