@@ -14,30 +14,30 @@ const Matches = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const loadMatches = async () => {
+    if (!isAuthenticated) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const accessToken = localStorage.getItem("access_token");
+      const [current, potential] = await Promise.all([
+        fetchCurrentMatches(accessToken),
+        fetchPotentialMatches(accessToken),
+      ]);
+
+      setCurrentMatches(current);
+      setPotentialMatches(potential);
+    } catch (err) {
+      setError("Failed to load matches. Please try again later.");
+      console.error("Error loading matches:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadMatches = async () => {
-      if (!isAuthenticated) return;
-
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const accessToken = localStorage.getItem("access_token");
-        const [current, potential] = await Promise.all([
-          fetchCurrentMatches(accessToken),
-          fetchPotentialMatches(accessToken),
-        ]);
-
-        setCurrentMatches(current);
-        setPotentialMatches(potential);
-      } catch (err) {
-        setError("Failed to load matches. Please try again later.");
-        console.error("Error loading matches:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadMatches();
   }, [isAuthenticated]);
 
@@ -69,7 +69,7 @@ const Matches = () => {
       </Tabs.Panel>
 
       <Tabs.Panel value="potential" pt="md">
-        <MatchesView data={potentialMatches} isPotential />
+        <MatchesView data={potentialMatches} isPotential onMatchSuccess={loadMatches} />
       </Tabs.Panel>
     </Tabs>
   );

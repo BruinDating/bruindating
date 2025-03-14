@@ -4,6 +4,8 @@ from rest_framework.decorators import action
 from .models import Match
 from .serializers import MatchSerializer, PotentialMatchSerializer, UserSerializer
 from auth_app.models import UCLAUser
+from chat.models import ChatRoom
+from django.db.models import Q
 
 
 class MatchViewSet(viewsets.ModelViewSet):
@@ -76,9 +78,21 @@ class MatchViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"])
     def approve(self, request, pk=None):
         try:
-            target_user = UCLAUser.objects.get(pk=pk)
-        except UCLAUser.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            # First try to get user by ID
+            target_user = UCLAUser.objects.filter(pk=pk).first()
+            
+            # If not found, try to get user by profile ID
+            if not target_user:
+                from profiles.models import Profile
+                profile = Profile.objects.filter(pk=pk).first()
+                if profile:
+                    target_user = profile.user
+                
+            if not target_user:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({"error": f"Failed to find user: {str(e)}"}, status=status.HTTP_404_NOT_FOUND)
 
         if target_user == request.user:
             return Response({"error": "You cannot approve yourself"}, status=status.HTTP_400_BAD_REQUEST)
@@ -96,6 +110,20 @@ class MatchViewSet(viewsets.ModelViewSet):
         if is_match:
             user_match.matched.add(target_user)
             target_match.matched.add(request.user)
+
+            # Check if a chat room already exists for these users
+            existing_chat_room = ChatRoom.objects.filter(
+                participants=request.user
+            ).filter(
+                participants=target_user
+            ).first()
+
+            if not existing_chat_room:
+                # Create a chat room only if one doesn't exist
+                chat_room = ChatRoom.objects.create(
+                    name=f"Chat between {request.user.first_name} and {target_user.first_name}"
+                )
+                chat_room.participants.add(request.user, target_user)
 
             return Response(
                 {"status": "approved", "is_match": True, "message": f"You matched with {target_user.first_name} {target_user.last_name}!"},
@@ -117,21 +145,29 @@ class MatchViewSet(viewsets.ModelViewSet):
         if target_user == request.user:
             return Response({"error": "You cannot reject yourself"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Get both user's match objects
         user_match, _ = Match.objects.get_or_create(user=request.user)
+        target_match, _ = Match.objects.get_or_create(user=target_user)
 
+        # Remove from each other's matches and approved lists
+        user_match.matched.remove(target_user)
+        user_match.approved.remove(target_user)
+        target_match.matched.remove(request.user)
+        target_match.approved.remove(request.user)
+
+        # Add to rejected
         user_match.rejected.add(target_user)
 
-        if target_user in user_match.approved.all():
-            user_match.approved.remove(target_user)
-
-        if target_user in user_match.matched.all():
-            user_match.matched.remove(target_user)
-
-            target_match, _ = Match.objects.get_or_create(user=target_user)
-            target_match.matched.remove(request.user)
+        # Delete any chat rooms between these users
+        ChatRoom.objects.filter(
+            participants=request.user
+        ).filter(
+            participants=target_user
+        ).delete()
 
         return Response(
-            {"status": "rejected", "message": f"You rejected {target_user.first_name} {target_user.last_name}"}, status=status.HTTP_200_OK
+            {"status": "rejected", "message": f"You rejected {target_user.first_name} {target_user.last_name}"}, 
+            status=status.HTTP_200_OK
         )
 
     @action(detail=True, methods=["post"])
@@ -178,12 +214,11 @@ class PotentialMatchViewSet(viewsets.ReadOnlyModelViewSet):
         user = self.request.user
         user_match, _ = Match.objects.get_or_create(user=user)
 
-        approved_users = user_match.approved.all()
         rejected_users = user_match.rejected.all()
         matched_users = user_match.matched.all()
 
         excluded_users = set()
-        for excluded_user in list(approved_users) + list(rejected_users) + list(matched_users):
+        for excluded_user in list(rejected_users) + list(matched_users):
             excluded_users.add(excluded_user.id)
 
         excluded_users.add(user.id)

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader, Center, Text, Stack } from "@mantine/core";
+import { Loader, Center, Text, Stack, Button } from "@mantine/core";
 
 const AuthCallback = () => {
   const router = useRouter();
@@ -40,6 +40,10 @@ const AuthCallback = () => {
     handleCallback();
   }, [searchParams, router]);
 
+  const handleReturnToLogin = () => {
+    router.push("/");
+  };
+
   return (
     <Center h="100vh">
       {error ? (
@@ -48,6 +52,9 @@ const AuthCallback = () => {
             Authentication Error
           </Text>
           <Text>{error}</Text>
+          <Button onClick={handleReturnToLogin} variant="filled" color="blue">
+            Return to Login
+          </Button>
         </Stack>
       ) : (
         <Stack align="center" gap="md">

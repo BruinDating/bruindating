@@ -1,4 +1,12 @@
-import { profileDataProps, UserData, MatchData, Message } from "@/types/types";
+import {
+  profileDataProps,
+  UserData,
+  MatchData,
+  Message,
+  ApiMatchData,
+  ChatRoom,
+  ApiMessage,
+} from "@/types/types";
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -7,126 +15,109 @@ export const fetchProfileData = async ({
 }: {
   accessToken: string | null;
 }): Promise<profileDataProps> => {
-  try {
-    if (!accessToken) {
-      throw new Error("No access token found");
-    }
-
-    const response = await fetch(`${API_URL}/profiles/`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch profile: ${response.statusText}`);
-    }
-
-    const profileData = await response.json();
-
-    const user = profileData?.user || {};
-
-    const email = user?.email || "";
-    const username = email
-      ? email.split("@")[0]
-      : `user_${user?.id || "unknown"}`;
-
-    return {
-      avatar: user?.profile_picture || null,
-      username: username,
-      firstName: user?.first_name || "",
-      lastName: user?.last_name || "",
-      age: profileData?.age || 18,
-      bio: profileData?.bio || "",
-      major: profileData?.major || "",
-      year: profileData?.year || "",
-      interests: profileData?.interests || [],
-      photos: profileData?.photos || [],
-      location: profileData?.location || "",
-      gender: profileData?.gender || "",
-      genderPreference: profileData?.gender_preference || [],
-    };
-  } catch (error) {
-    console.error("Error fetching user profile:", error);
-    throw error;
+  if (!accessToken) {
+    throw new Error("No access token");
   }
+
+  const response = await fetch(`${API_URL}/profiles/`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch profile");
+  }
+
+  const profileData = await response.json();
+  const user = profileData?.user || {};
+  const email = user?.email || "";
+  const username = email
+    ? email.split("@")[0]
+    : `user_${user?.id || "unknown"}`;
+
+  return {
+    avatar: user?.profile_picture || null,
+    username: username,
+    firstName: user?.first_name || "",
+    lastName: user?.last_name || "",
+    age: profileData?.age || 18,
+    bio: profileData?.bio || "",
+    major: profileData?.major || "",
+    year: profileData?.year || "",
+    interests: profileData?.interests || [],
+    photos: profileData?.photos || [],
+    location: profileData?.location || "",
+    gender: profileData?.gender || "",
+    genderPreference: profileData?.gender_preference || [],
+  };
 };
 
 export const updateUserProfile = async (
   userData: Partial<profileDataProps>,
   accessToken: string | null
 ): Promise<profileDataProps> => {
-  try {
-    if (!accessToken) {
-      throw new Error("No access token found");
-    }
-
-    const response = await fetch(`${API_URL}/profiles/`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        bio: userData.bio,
-        major: userData.major,
-        year: userData.year,
-        age: userData.age,
-        interests: userData.interests,
-        photos: userData.photos,
-        location: userData.location,
-        gender: userData.gender,
-        gender_preference: userData.genderPreference,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to update profile: ${response.statusText}`);
-    }
-
-    return fetchProfileData({ accessToken });
-  } catch (error) {
-    console.error("Error updating user profile:", error);
-    throw error;
+  if (!accessToken) {
+    throw new Error("No access token");
   }
+
+  const response = await fetch(`${API_URL}/profiles/`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      bio: userData.bio,
+      major: userData.major,
+      year: userData.year,
+      age: userData.age,
+      interests: userData.interests,
+      photos: userData.photos,
+      location: userData.location,
+      gender: userData.gender,
+      gender_preference: userData.genderPreference,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update profile");
+  }
+
+  return fetchProfileData({ accessToken });
 };
 
 export const updateUserSettings = async (
   settings: Partial<UserData>,
   accessToken: string | null
 ): Promise<void> => {
-  try {
-    if (!accessToken) {
-      throw new Error("No access token found");
-    }
+  if (!accessToken) {
+    throw new Error("No access token");
+  }
 
-    const response = await fetch(`${API_URL}/profiles/settings/`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email_notifications: settings.notiEmailNotifications,
-        match_notifications: settings.notiNewMatches,
-        message_notifications: settings.notiMessages,
-        profile_visibility: settings.priProfileVisibility,
-        show_online_status: settings.priShowOnlineStatus,
-        max_distance: settings.dpDistance,
-        age_min: settings.dpAgeRange?.[0],
-        age_max: settings.dpAgeRange?.[1],
-      }),
-    });
+  const response = await fetch(`${API_URL}/profiles/settings/`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email_notifications: settings.notiEmailNotifications,
+      match_notifications: settings.notiNewMatches,
+      message_notifications: settings.notiMessages,
+      profile_visibility: settings.priProfileVisibility,
+      show_online_status: settings.priShowOnlineStatus,
+      max_distance: settings.dpDistance,
+      age_min: settings.dpAgeRange?.[0],
+      age_max: settings.dpAgeRange?.[1],
+    }),
+  });
 
-    if (!response.ok) {
-      throw new Error(`Failed to update settings: ${response.statusText}`);
-    }
-  } catch (error) {
-    console.error("Error updating user settings:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error("Failed to update settings");
   }
 };
 
@@ -137,8 +128,7 @@ export const fetchPotentialMatches = async (
     if (!accessToken) {
       throw new Error("No access token found");
     }
-    // this line below can cause no users to pop up if we don't have a lot of users in database, 
-    //if we want everyone can match with each other, then we should change
+
     const response = await fetch(`${API_URL}/matching/potential/`, {
       method: "GET",
       headers: {
@@ -155,9 +145,9 @@ export const fetchPotentialMatches = async (
     }
 
     const data = await response.json();
-    const filteredData = data.filter((match: any) => match?.email);
+    const filteredData = data.filter((match: ApiMatchData) => match?.email);
 
-    return filteredData.map((match: any) => {
+    return filteredData.map((match: ApiMatchData): MatchData => {
       const email = match?.email || "";
       const username = email
         ? email.split("@")[0]
@@ -209,7 +199,7 @@ export const fetchCurrentMatches = async (
       throw new Error("No access token found");
     }
 
-    const response = await fetch(`${API_URL}/matching/matches/`, {
+    const response = await fetch(`${API_URL}/matching/matches/matches/`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -225,9 +215,10 @@ export const fetchCurrentMatches = async (
     }
 
     const data = await response.json();
-    const filteredData = data.filter((match: any) => match?.email);
+    console.log('Current matches response:', data);
+    const filteredData = data.filter((match: ApiMatchData) => match?.email);
 
-    return filteredData.map((match: any) => {
+    return filteredData.map((match: ApiMatchData): MatchData => {
       const email = match?.email || "";
       const username = email
         ? email.split("@")[0]
@@ -274,30 +265,27 @@ export const fetchCurrentMatches = async (
 export const likeProfile = async (
   userId: string,
   accessToken: string | null
-): Promise<void> => {
-  try {
-    if (!accessToken) {
-      throw new Error("No access token found");
-    }
-
-    const response = await fetch(
-      `${API_URL}/matching/matches/${userId}/like/`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to like profile: ${response.statusText}`);
-    }
-  } catch (error) {
-    console.error("Error liking profile:", error);
-    throw error;
+): Promise<{ status: string; is_match: boolean; message: string }> => {
+  if (!accessToken) {
+    throw new Error("No access token found");
   }
+
+  const response = await fetch(`${API_URL}/matching/matches/${userId}/like/`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
+  console.log('Like response:', { status: response.status, data });
+
+  if (!response.ok) {
+    throw new Error(data.error || `Failed to like profile: ${response.statusText}`);
+  }
+
+  return data;
 };
 
 export const dislikeProfile = async (
@@ -360,7 +348,7 @@ export const superLikeProfile = async (
 
 export const fetchChatRooms = async (
   accessToken: string | null
-): Promise<any[]> => {
+): Promise<ChatRoom[]> => {
   try {
     if (!accessToken) {
       throw new Error("No access token found");
@@ -379,7 +367,24 @@ export const fetchChatRooms = async (
       throw new Error(`Failed to fetch chat rooms: ${response.statusText}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+
+    return data.map((room: any) => ({
+      id: room.id,
+      name: room.participants[0]?.first_name
+        ? `${room.participants[0].first_name} ${
+            room.participants[0].last_name || ""
+          }`
+        : "Unknown User",
+      participants: room.participants.map((participant: any) => ({
+        id: participant.id,
+        username: participant.email
+          ? participant.email.split("@")[0]
+          : `user_${participant.id}`,
+        profile_picture: participant.profile_picture,
+      })),
+      last_message: room.last_message || null,
+    }));
   } catch (error) {
     console.error("Error fetching chat rooms:", error);
     throw error;
@@ -409,7 +414,7 @@ export const fetchChatMessages = async (
     }
 
     const data = await response.json();
-    return data.map((message: any) => ({
+    return data.map((message: ApiMessage) => ({
       id: message.id,
       text: message.content,
       sender: message.sender.email.split("@")[0],
@@ -457,38 +462,31 @@ export const sendChatMessage = async (
   }
 };
 
-export const createChatRoom = async (
-  participantId: string,
-  accessToken: string | null
-): Promise<string> => {
-  try {
-    if (!accessToken) {
-      throw new Error("No access token found");
-    }
-
-    const response = await fetch(`${API_URL}/chat/rooms/`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ participant_id: participantId }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to create chat room: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data.id;
-  } catch (error) {
-    console.error("Error creating chat room:", error);
-    throw error;
+export const createChatRoom = async (targetUserId: string, accessToken: string | null) => {
+  if (!accessToken) {
+    throw new Error('No access token found');
   }
+
+  const response = await fetch(`${API_URL}/chat/rooms/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ target_user_id: targetUserId }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || 'Failed to create chat room');
+  }
+
+  const data = await response.json();
+  return data.id;
 };
 
 export const submitQuestionnaire = async (
-  answers: Record<string, any>,
+  answers: Record<string, unknown>,
   accessToken: string | null
 ): Promise<void> => {
   try {
