@@ -194,4 +194,3 @@ export interface ApiMessage {
     email: string;
   };
   timestamp: string;
-}

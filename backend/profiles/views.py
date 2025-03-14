@@ -30,6 +30,13 @@ class ProfileViewSet(viewsets.ModelViewSet):
             else:
                 profiles = Profile.objects.all()
                 serializer = self.get_serializer(profiles, many=True)
+            profile, created = Profile.objects.get_or_create(
+                user=request.user,
+                defaults={
+                    "age": 18,
+                },
+            )
+            serializer = self.get_serializer(profile)
             return Response(serializer.data)
         except Exception as e:
             return Response({"error": "Failed to retrieve profile", "detail": str(e)}, status=500)
