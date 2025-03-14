@@ -12,10 +12,12 @@ const LandingPage = () => {
   const router = useRouter();
 
   useEffect(() => {
+    // AuthContext will handle the routing based on profile existence
     if (isAuthenticated && user) {
-      router.push(`/${user.username}/home`);
+      // No need to do anything here, AuthContext handles routing
+      console.log('User authenticated, AuthContext will handle routing');
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user]);
 
   const handleSignIn = async () => {
     await login();
@@ -54,6 +56,6 @@ const LandingPage = () => {
       </Stack>
     </>
   );
-};
 
+};
 export default LandingPage;
