@@ -11,6 +11,8 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        uclaBlue: '#2774AE',
+        uclaGold: '#FFD100',
       },
     },
   },

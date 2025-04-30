@@ -1,4 +1,5 @@
 import "@mantine/core/styles.css";
+import "./globals.css";
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -32,7 +33,7 @@ const RootLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <html lang="en" {...mantineHtmlProps}>
+    <html lang="en" {...mantineHtmlProps} className="scroll-smooth">
       <head>
         <ColorSchemeScript />
       </head>
